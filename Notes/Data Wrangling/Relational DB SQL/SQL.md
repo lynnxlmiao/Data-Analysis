@@ -103,5 +103,23 @@ select T.thing, S.stuff
 from T,S
 where t.target=s.match
 ```
+## WORKING WITH CSV's in SQLite ##
+You're able to both import CSV files and export data as CSV files from SQLite.
 
+### EXPORT DATA TO CSV FROM DATABASE ###
+```
+sqlite> .mode csv
+sqlite> .output newFile.csv
+sqlite> SELECT * FROM myTable;
+sqlite> .exit
+```
+### IMPORT YOUR CSV INTO A TABLE ###
+```
+$ sqlite3 new.db   <--- If you'd like your csv's in a new database remember to make it first.
+
+sqlite> CREATE TABLE myTable() <--- Build your schema!
+sqlite> .mode csv
+sqlite> .import newFile.csv myTable
+```
+There are a few limitations you'll come up against working this way. SQLite can't handle EVERYTHING but it's a great start!
 
