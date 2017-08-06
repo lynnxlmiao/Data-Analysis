@@ -123,3 +123,29 @@ sqlite> .import newFile.csv myTable
 ```
 There are a few limitations you'll come up against working this way. SQLite can't handle EVERYTHING but it's a great start!
 
+
+# OSM XML #
+XML is a so called meta format to provide even human readable data interexchange formats. Various file formats use this data tree structure to embedd their datas like XHTML, SVG, ODT, ...
+[Wiki OSM_XML](https://wiki.openstreetmap.org/wiki/OSM_XML#JOSM_file_format)
+
+**Pros:**
+human readable because of clear structure
+machine independent due to exact definitions, e.g. character sets, XML schema definitions, DTD, namespaces...
+ready to use parsers for general XML that can be customized for a concrete file format
+good compression ratio
+
+**Cons:**
+very huge files when decompressed
+might need to decompress before processing (data compression/decompression may be performed on the fly by the transport protocol such as HTTP)
+parsing may take a lot of time and memory resources, but only when using the full XML capabilities; basic XML (without DTD and namespaces) however is very fast and can be performed efficiently on the fly, without computing the DOM for the whole XML document (e.g. with simple SAX parsers)
+
+**Contents**
++ an XML suffix introducing the UTF-8 character encoding for the file
++ an osm element, containing the version of the API (and thus the features used) and the generator that distilled this file (e.g. an editor tool)
+ + a block of [nodes](https://wiki.openstreetmap.org/wiki/Node) containing especially the location in the WGS84 reference system
+   + the tags of each node
+ + a block of [ways](https://wiki.openstreetmap.org/wiki/Way)
+   + the tags of each way
+ + a block of [relations](https://wiki.openstreetmap.org/wiki/Relation)
+   + the references to its members for each relation
+   + the tags of each relation
