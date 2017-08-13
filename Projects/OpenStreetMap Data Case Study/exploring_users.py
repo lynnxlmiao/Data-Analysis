@@ -3,7 +3,7 @@
 import xml.etree.cElementTree as ET
 import pprint
 
-OSM_PATH = "C:\Files\Udacity\Data Analyst Nanodegree\Part 4\Singapore\Singapore.osm"
+OSM_PATH = "C:\Files\Udacity\Data Analyst Nanodegree\Part 4\Portland\Portland.osm"
 
 def get_user(element):
     return element.attrib['uid']

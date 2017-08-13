@@ -4,7 +4,7 @@ import xml.etree.cElementTree as ET
 import pprint
 import re
 
-OSM_PATH = "C:\Files\Udacity\Data Analyst Nanodegree\Part 4\Singapore\Singapore.osm"
+OSM_PATH = "C:\Files\Udacity\Data Analyst Nanodegree\Part 4\Portland\Portland.osm"
 
 lower = re.compile(r'^([a-z]|_)*$')
 lower_colon = re.compile(r'^([a-z]|_)*:([a-z]|_)*$')
