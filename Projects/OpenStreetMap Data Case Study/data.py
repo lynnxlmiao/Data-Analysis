@@ -9,7 +9,7 @@ import cerberus
 
 import schema
 
-OSMFILE = r"C:\Files\Udacity\Data Analyst Nanodegree\Part 4\Portland\Portland_sample.osm"
+OSMFILE = r"C:\Files\Udacity\Data Analyst Nanodegree\Part 4\Portland\Portland.osm"
 
 NODES_PATH = r"C:\Files\Udacity\Data Analyst Nanodegree\Part 4\Portland\nodes.csv"
 NODE_TAGS_PATH = r"C:\Files\Udacity\Data Analyst Nanodegree\Part 4\Portland\nodes_tags.csv"
