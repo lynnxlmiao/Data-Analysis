@@ -1,4 +1,4 @@
-# OpenStreetMap Data Case Study Files Included:#
+# OpenStreetMap Data Case Study Files Included: #
 
 ## PDF File ##
 Report with data wrangling process, including the map position I wrangled in my project, and a short description of it and the reason for my choice. And referred resources listed in the last part of the report as "Reference".
@@ -25,7 +25,7 @@ Audit phone numbers.
 + data.py
 Data clean and database preparation.
 
-##Additional Support Files##
+## Additional Support Files ##
 + OpenStreetMap Case Study.ipynb
 + OpenStreetMapDataCaseStudy.html
 Report in .ipynb and .html format.
