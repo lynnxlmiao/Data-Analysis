@@ -233,4 +233,74 @@ ggplot(aes(x = friend_count), data = subset(pf, !is.na(gender))) +
   facet_wrap(~gender)
 ```
 **Statistics 'By' Gender**
+```
+by(pf$friend_count, pf$gender, summary)
+```
+
+**Median is more robust statistic than mean.**
+
+## Tenure ##
+The parameter ```color``` determines the color outline of objects in a plot.
+
+The parameter ```fill``` determines the color of the area inside objects in a plot.
+
+You might notice how the color ```black``` and the hex code color of ```#099DD9``` (a shade of blue) are wrapped inside of ```I()```. The ```I()``` functions stand for 'as is' and tells ```qplot``` to use them as colors.
+
+[ggplot theme documentation](http://ggplot2.tidyverse.org/reference/theme.html)
+
+Equivalent ggplot syntax for plots:
+```
+ggplot(aes(x = tenure), data = pf) +
+  geom_histogram(binwidth = 30, color = 'black', fill = '#099DD9')
+
+ggplot(aes(x = tenure/365), data = pf) +
+  geom_histogram(binwidth = .25, color = 'black', fill = '#F79420')
+```
+
+**Labeling Plots**
+```
+ggplot(aes(x = tenure / 365), data = pf) +
+  geom_histogram(color = 'black', fill = '#F79420') +
+  scale_x_continuous(breaks = seq(1, 7, 1), limits = c(0, 7)) +
+  xlab('Number of years using Facebook') +
+  ylab('Number of users in sample')
+```
+
+**User Ages**
+```
+qplot(x = age, data = pf, 
+	  color = I('black'), fill = I('#5768A8'))
+```
+
+## Transforming Data ##
+[Create Multiple Plots in One Image Output](http://lightonphiri.org/blog/ggplot2-multiple-plots-in-one-graph-using-gridextra)
+[Add Log or Sqrt Scales to an Axis](http://ggplot2.tidyverse.org/reference/scale_continuous.html)
+[Assumptinos of Linear Regression](https://en.wikipedia.org/wiki/Linear_regression#Assumptions)
+[Normal Distribution](https://en.wikipedia.org/wiki/Normal_distribution)
+[Log Transformations of Data](https://www.r-statistics.com/2013/05/log-transformations-for-skewed-and-wide-distributions-from-practical-data-science-with-r/)
+
+**Engagements Variables**
+very long tails
+
+**Over-dispersed**
+
+**Transform variable by taking the log**
+Either use natural log, log base 2 or log base 10.
+Also we can use other functions such as square root, to see patterns more clearly, without being distracted by the tails.
+A lot of common statistical techniques, like linear regression, are based on the assumption that variables have normal distributions.
+```R
+p1 <- ggplot(aes(x = friend_count), data = pf) + geom_histogram()
+p2 <- p1 + scale_x_log10()
+p3 <- p1 + scale_x_sqrt()
+
+grid.arrange(p1, p2, p3, ncol = 1)
+```
+other syntax to realize
+```
+p1 <- qplot(x = friend_count, data = pf)
+p2 <- qplot(x = log10(friend_count + 1), data = pf)
+p3 <- qplot(x = sqrt(friend_count), data = pf)
+
+grid.arrange(p1, p2, p3 ncol = 1)
+```
 
