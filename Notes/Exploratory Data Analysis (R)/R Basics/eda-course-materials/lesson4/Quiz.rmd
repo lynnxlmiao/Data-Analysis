@@ -1,0 +1,17 @@
+---
+title: "Lesson 4 Quiz"
+output: html_document
+---
+```{r}
+library(ggplot2)     #must load the ggplot package first
+data(diamonds)       #loads the diamonds data set since it comes with the ggplot package
+summary(diamonds)
+```
+# Create a histogram of the price of
+# all the diamonds in the diamond data set.
+```{r}
+ggplot(aes(x = price), data = diamonds) +
+  geom_histogram(binwidth = 100) +
+  scale_x_continuous(breaks = seq(326, 18823, 1000))
+```
+
