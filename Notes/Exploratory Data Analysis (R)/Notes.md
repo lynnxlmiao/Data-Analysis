@@ -153,9 +153,12 @@ library(ggthemes)
 ```
 
 Chris is using ```theme_minimal()``` with the font size set to 24, which is why his output might look slightly different than yours. You can set the same theme in R by running the following code, or you can set the theme to a choice of your own. 
-```theme_set(theme_minimal(24))```
+```R
+theme_set(theme_minimal(24))
+```
 
 Instead of using the qplot() function, you can also use the ggplot() function to create the histogram:
+
 ```
 ggplot(aes(x = dob_day), data = pf) +
   geom_histogram(binwidth = 1) +
@@ -314,3 +317,81 @@ ggplot(aes(x = friend_count, y = ..count../sum(..count..)),
   xlab('Friend Count') +
   ylab('Proportion of users with that friend count')
 ```
+Note that sum(..count..) will sum across color, so the proportions displayed are based on total users. To plot these proportions within each group, you can try y = ..density...
+
+Equivalent ggplot syntax for solution video:
+
+```R
+ggplot(aes(x = www_likes), data = subset(pf, !is.na(gender))) +
+  geom_freqpoly(aes(color = gender)) +
+  scale_x_log10()
+```
+
+## Likes on the Web ##
+```R
+by(pf$www_likes, pf$gender, sum)
+```
+
+## Box Plots ##
+[How to read and use a Boxplot](http://flowingdata.com/2008/02/15/how-to-read-and-use-a-box-and-whisker-plot/)
+```R
+qplot(x = gender, y = friend_count, 
+      data = subset(pf, !is.na(gender)),
+	  geom = 'boxplot', ylim = c(0, 1000))
+
+qplot(x = gender, y = friend_count, 
+      data = subset(pf, !is.na(gender)),
+	  geom = 'boxplot') + 
+  scale_y_continuous(limits = c(0,1000))
+
+qplot(x = gender, y = friend_count,
+      data = subset(pf, !is.na(gender)),
+      geom = 'boxplot') +
+  coord_cartesian(ylim = c(0, 1000))
+```
+
+## Box Plots, Quartiles, and Friend Requests ##
+```R
+qplot(x = gender, y = friend_count, 
+      data = subset(pf, !is.no(gender)),
+      geom = 'boxplot') + 
+   coord_cartesion(ylim = c(0, 250))
+
+by(pf$friend_count, pf$gender, summary)
+```
+## Getting Logical ##
+```R
+summary(pf$mobile_likes)
+
+summary(pf$mobile_likes > 0)
+
+mobile_check_in <- NA  # This creates a new variable in the data frame with NA values.
+pf$mobile_check_in <- ifelse(pf$mobile_likes > 0, 1, 0)
+pf$mobile_check_in <- factor(pf$mobile_check_in)
+summary(pf$mobile_check_in)
+```
+The ```sum()``` function will not work since ```mobile_check_in``` is a factor variable. You can use the ```length()``` function to determine the number of values in a vector.
+We could have also made ```mobile_check_in``` to hold boolean values. The ```sum()```function will work on booleans (true is 1, false is 0).
+
+```R
+summary(pf$mobile_check_in)
+sum(pf$mobile_check_in == 1)/length(pf$mobile_check_in)
+```
+
+##Data Wrangling with R##
+Data munging or data wrangling can take up much of a data scientist's or data analyst's time. There are two R packages that make these tasks easier in R: tidyr and dplyr.
+**tidyr**-a package that reshapes the layout of your data
+**dplyr**-a package that helps you transform tidy, tabular data
+Review [Data Wrangling in R](https://s3.amazonaws.com/udacity-hosted-downloads/ud651/DataWranglingWithR.pdf) to get a sense of how these packages allow you to manipulate data.
+
+There are some useful cheat sheets on [RStudio's webpage](https://s3.amazonaws.com/udacity-hosted-downloads/ud651/DataWranglingWithR.pdf). The Data Import and Data Transformation sheets will be good references for working with tidyr and dplyr, respectively.
+
+##Exploring Your Friends' Birthdays##
+[Download Your Friends' Birthdays from Facebook](https://www.facebook.com/help/152652248136178/)
+
+[Date Formats in R](https://www.r-bloggers.com/date-formats-in-r/)
+
+[Export a GOogle Calendar](https://support.google.com/calendar/answer/37111?hl=en)
+
+[Google Calendar to Excel: Free Trial](https://www.gcal2excel.com/)
+
