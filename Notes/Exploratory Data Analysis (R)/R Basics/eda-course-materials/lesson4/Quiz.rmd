@@ -2,16 +2,83 @@
 title: "Lesson 4 Quiz"
 output: html_document
 ---
+##Load Diamond Data##
 ```{r}
 library(ggplot2)     #must load the ggplot package first
 data(diamonds)       #loads the diamonds data set since it comes with the ggplot package
 summary(diamonds)
 ```
+
+##Price Histogram##
 # Create a histogram of the price of
 # all the diamonds in the diamond data set.
 ```{r}
 ggplot(aes(x = price), data = diamonds) +
   geom_histogram(binwidth = 100) +
-  scale_x_continuous(breaks = seq(326, 18823, 1000))
+  scale_x_continuous(breaks = seq(0, 18823, 1000))  #long_tailed should be added
 ```
+
+
+##Price Histogram Summary##
+```{r}
+subset(diamonds, price < 500)
+```
+
+```{r}
+subset(diamonds, price < 250)
+```
+
+```{r}
+subset(diamonds, price >= 15000, select=c(price))
+```
+
+##Cheaper Diamonds##
+# Explore the largest peak in the
+# price histogram you created earlier.
+
+# Try limiting the x-axis, altering the bin width,
+# and setting different breaks on the x-axis.
+
+# There won't be a solution video for this
+# question so go to the discussions to
+# share your thoughts and discover
+# what other people find.
+
+# You can save images by using the ggsave() command.
+# ggsave() will save the last plot created.
+# For example...
+#                  qplot(x = price, data = diamonds)
+#                  ggsave('priceHistogram.png')
+
+# ggsave currently recognises the extensions eps/ps, tex (pictex),
+# pdf, jpeg, tiff, png, bmp, svg and wmf (windows only).
+
+# Submit your final code when you are ready.
+```{r}
+ggplot(aes(x = price), data = diamonds) +
+  geom_histogram(binwidth = 25, color = 'black', fill = '#099DD9') +
+  scale_x_continuous(breaks = seq(0, 1500, 100), limits = c(0,1500))
+ggsave('priceHistogram.png')
+```
+
+##Price by Cut Histograms##
+# Break out the histogram of diamond prices by cut.
+
+# You should have five histograms in separate
+# panels on your resulting plot.
+```{r}
+ggplot(diamonds) + geom_histogram(aes(x=price), binwidth = 100, 
+                                  color = "black", fill = "#099DD9") + 
+  ggtitle("Diamonds Price by Cut Histogram") + 
+  facet_grid(. ~ cut)
+```
+
+##Price by Cut##
+#Which cut has the highest priced diamond?
+#Which cut has the lowest priced diamond?
+#Which cut has the lowest median price?
+```{r}
+by(diamonds$price,diamonds$cut,summary)
+```
+
 
