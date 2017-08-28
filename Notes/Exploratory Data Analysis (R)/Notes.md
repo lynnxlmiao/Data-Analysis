@@ -395,3 +395,168 @@ There are some useful cheat sheets on [RStudio's webpage](https://s3.amazonaws.c
 
 [Google Calendar to Excel: Free Trial](https://www.gcal2excel.com/)
 
+
+#Explor Two Variables#
+##Scatterplots##
+
+You can also read in the data using the following code:
+```R
+read.delim('pseudo_facebook.tsv')
+```
+The equivalent ggplot syntax for the scatterplot:
+```R
+ggplot(aes(x = age, y = friend_count), data = pf) +
+  geom_point()
+```
+```R
+library(ggplot2)
+pf <- read.csv('C:/Files/Udacity/Data-Analysis/Notes/Exploratory Data Analysis (R)/R Basics/eda-course-materials/lesson3/pseudo_facebook.tsv', sep = '\t')
+#sep="\t" tells R that the file is tab-delimited (use " " for space delimited and "," for comma delimited; use "," for a .csv file)
+
+qplot(x = age, y = friend_count, data = pf)
+#qplot(age, friend_count, data = pf)
+```
+
+[ggplot2 tutorial by Ramon Saccilotto](https://classroom.udacity.com/nanodegrees/nd002/parts/0021345407/modules/316518875375460/lessons/755298985/concepts/8651687310923)
+[ggplot2 geoms](http://ggplot2.tidyverse.org/reference/)
+
+##Overplotting##
+alpha and jitter
+```R
+ggplot(aes(x = age, y = friend_count), data = pf)  + 
+  geom_jitter(alpha = 1/20) + 
+  xlim(13, 90)
+
+summary(pf$age)
+```
+
+##Coord_trans()##
+[coord_trans()](http://docs.ggplot2.org/current/coord_trans.html)
+
+##Alpha and Jitter##
+ jitter使某每一个点在x轴的方向上产生随机的偏移, 从而减少了图形重叠的问题, 另一种介绍重叠的方式是改变点的透明度alpha, 将在实战中的地图讨论
+```R
+#Explore the relationship between friends initiated(y) vs age(x).
+ggplot(aes(x = age, y = friendships_initiated), data = pf)  + 
+  geom_jitter(alpha = 1/10, position = position_jitter(h = 0)) + 
+  coord_trans(y = 'sqrt')
+```
+##Conditional Means##
+**Important Notice**: Please note that in newer versions of dplyr (0.3.x+), the syntax %.% has been deprecated and replaced with %>%.
+
+Another warning: Version 0.4.0 of dplyr has a bug when using the median function on the summarize layer, depending on the nature of the data being summarized. You may need to cast the data as a numeric (float) type when using it on your local machine, e.g. ```median(as.numeric(var))```.
+
+[dplyr package](https://blog.rstudio.com/2014/01/17/introducing-dplyr/)
+[Introduction to dplyr (knitted html file)](http://rstudio-pubs-static.s3.amazonaws.com/11068_8bc42d6df61341b2bed45e9a9a3bf9f4.html)
+
+There are other ways to work with data and create new data frames without using the dplyr package. Learn about the R functions lapply, tapply, and split in a [blog post](https://rollingyours.wordpress.com/2014/10/20/the-lapply-command-101/).
+
+For more on geom_line(), you can check the documentation [here](http://ggplot2.tidyverse.org/reference/geom_path.html).
+
+##Cnditional Means##
+```R
+install.packages('dplyr')
+library(dplyr)
+```
+```R
+age_groups <- group_by(pf, age)
+summarise(age_groups,
+          friend_count_mean = mean(friend_count),
+          friend_count_median = median(friend_count),
+          n = n())
+pf.fc_by_age <- arrange(pf.fc_by_age, age)
+head(pf.fc_by_age)
+```
+Function chain ```%>%```
+```R
+pf.fc_by_age <- pf %>%
+  group_by(age) %>%
+  summarise(friend_count_mean = mean(friend_count),
+          friend_count_median = median(friend_count),
+          n = n()) %>%
+  arrange(age)
+
+head(pf.fc_by_age)
+```
+```R
+# Plot mean friend count vs. age using a line graph.
+# Be sure you use the correct variable names
+# and the correct data frame. You should be working
+# with the new data frame created from the dplyr
+# functions. The data frame is called 'pf.fc_by_age'.
+
+# Use geom_line() rather than geom_point to create
+# the plot. You can look up the documentation for
+# geom_line() to see what it does.
+
+ggplot(aes(x = age, y = friend_count_mean), data = pf.fc_by_age)  + 
+  geom_line()
+```
+
+##Overlaying Summaries with Raw Data##
+**Note**:ggplot 2.0.0 changes the syntax for parameter arguments to functions when using stat = 'summary'. To denote parameters that are being set on the function specified by fun.y, use the fun.args argument, e.g.:
+```R
+ggplot( ... ) +
+  geom_line(stat = 'summary', fun.y = quantile,
+            fun.args = list(probs = .9), ... )
+```
+
+To zoom in, the code should use the```coord_cartesian(xlim = c(13, 90))``` layer rather than ```xlim(13, 90)``` layer.
+
+Look up documentation for coord_cartesian() and quantile() if you're unfamiliar with them.
+
+Try an example and practice problem for calculating [quantiles (percentiles)](http://www.r-tutor.com/elementary-statistics/numerical-measures/percentile).
+
+```R
+ggplot(aes(x = age, y = friend_count), data = pf) +
+  #xlim(13, 90) +    replace by coord_cartesian
+  coord_cartesian(xlim = c(13, 70), ylim = c(0, 1000)) +
+  geom_point(alpha = 0.05,
+             position = position_jitter(h = 0),
+             color = 'orange') +
+  #coord_trans(y = 'sqrt') +  replace by coord_cartesian
+  geom_line(stat = 'summary', fun.y = mean) +
+  geom_line(stat = 'summary', fun.y = quantile, 
+            fun.args = list(probs = .1), 
+            linetype = 2, color = 'blue') +
+  geom_line(stat = 'summary', fun.y = quantile, 
+            fun.args = list(probs = .5), 
+            color = 'blue') +
+  geom_line(stat = 'summary', fun.y = quantile, 
+            fun.args = list(probs = .9), 
+            linetype = 2, color = 'blue')
+```
+##Correlation##
+[Correlation Coefficient](http://www.r-tutor.com/elementary-statistics/numerical-measures/correlation-coefficient)
+[A Visual Guide to Correlation](https://s3.amazonaws.com/udacity-hosted-downloads/ud651/correlation_images.jpeg)
+[Intro to Inferential Statistics - Correlation](https://classroom.udacity.com/courses/ud201/lessons/1345848540/concepts/1715827370923)
+Correlation coefficients are often denoted with the greek letter ρ (rho), in addition to the letter r.
+
+The default method for computing the correlation coefficient is Pearson, and this is true for most statistical software. You do not need to pass the method parameter when calculating the Pearson Product Moment Correlation.
+```R
+cor.test(pf$age, pf$friend_count, method = 'pearson')
+```
+```R
+with(pf, cor.test(age, friend_count, method = 'pearson'))
+```
+
+**ostensibly** - apparently or purportedly, but perhaps not actually.
+
+##Correlation on Subsets##
+```R
+with(subset(pf, age <= 70), cor.test(age, friend_count), method = 'pearson')
+#method = 'pearson' can be removed since cor.test default method is 'pearson'
+```
+
+##Create Scatterplots##
+```R
+ggplot(aes(x = www_likes_received, y = likes_received), data = pf) +
+  geom_point()
+```
+
+##Strong Correlations##
+The correlation coefficient is invariant under a linear transformation of either X or Y, and the slope of the regression line when both X and Y have been transformed to z-scores is the correlation coefficient.
+
+It's important to note that we may not always be interested in the bulk of the data. Sometimes, the outliers ARE of interest, and it's important that we understand their values and why they appear in the data set.
+
+##More Caution With Correlation##
