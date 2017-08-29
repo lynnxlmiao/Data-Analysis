@@ -396,7 +396,7 @@ There are some useful cheat sheets on [RStudio's webpage](https://s3.amazonaws.c
 [Google Calendar to Excel: Free Trial](https://www.gcal2excel.com/)
 
 
-#Explor Two Variables#
+#Explore Two Variables#
 ##Scatterplots##
 
 You can also read in the data using the following code:
@@ -560,3 +560,166 @@ The correlation coefficient is invariant under a linear transformation of either
 It's important to note that we may not always be interested in the bulk of the data. Sometimes, the outliers ARE of interest, and it's important that we understand their values and why they appear in the data set.
 
 ##More Caution With Correlation##
+Argument matching (when not providing them by name) in R is a bit complex.
+
+First, arguments (or parameters) can be matched by name. If a parameter matches exactly, it is "removed" from the argument list and the remaining unnamed arguments are matched in the order that they are listed in the function definition.
+
+R does the following to match arguments... 
+
++ checks for exact match of named argument
++ checks for a partial match of the argument
++ checks for a positional match
+
+If R does not find a match for a parameter, it typically throws an "unused" parameter error.
+
+Type ```str(functionName)``` to find the order of the parameters and learn more about the parameters of an R function. 
+
+**install alr3**
+```R
+install.packages('alr3')
+library(alr3)
+data(Mitchell)
+```
+
+##Noisy Scatterplots##
+```R
+cor.test(Mitchell$Month, Mitchell$Temp)
+```
+
+##Making Sense of Data##
+As of ggplot 2.0, you will need to use a ```scale_x_continuous()``` layer instead of ```scale_x_discrete()```, since the Month is considered a numeric variable.
+
+To see the range of Mitchell$Month:
+```R
+>range(Mitchell$Month)
+[1] 0 203
+```
+```R
+ggplot(data = Mitchell, aes(x = Month, y = Temp)) +
+  geom_point() +
+  scale_x_discrete(breaks = seq(0, 203, 12))
+```
+
+##A New Perspective##
+You could also get perspective on this data by overlaying each year's data on top of each other, giving a clear, generally sinusoidal graph. You can do this by using the R's [modulus](https://en.wikipedia.org/wiki/Modular_arithmetic) operator %% in your code. Try running the code below!
+
+```R
+ggplot(aes(x=(Month%%12),y=Temp), data=Mitchell)+
+  geom_point()
+```
+
+There are other measures of associations that can detect this. The ```dcor.ttest()``` function in the **energy** package implements a non-parametric test of the independence of two variables. While the Mitchell soil dataset is too coarse to identify a significant dependency between "Month" and "Temp", we can see the difference between ```dcor.ttest``` and ```cor.test``` through other examples, like the following:
+```R
+x <- seq(0, 4*pi, pi/20)
+y <- cos(x)
+qplot(x = x, y = y)
+dcor.ttest(x, y)
+```
+
+The ```cor``` and ```cor.test``` functions determine the strength of a linear relationship, but they may miss other relationships in the data.
+The Instructor Notes of the solution video includes a statistical test that would pick up this pattern. It also contains comments about data visualizations you don't want to miss!
+```R
+ggplot(aes(x=(Month%%12),y=Temp), data=Mitchell)+
+  geom_point()
+```
+```R
+dcor.ttest
+```
+##Understanding Noise: Age to Age Months##
+```R
+# Create a new variable, 'age_with_months', in the 'pf' data frame.
+# Be sure to save the variable in the data frame rather than creating
+# a separate, stand-alone variable. You will need to use the variables
+# 'age' and 'dob_month' to create the variable 'age_with_months'.
+
+# Assume the reference date for calculating age is December 31, 2013.
+pf$age_with_months <- pf$age + (12 - pf$dob_month)/12
+```
+
+##Age with Months Means##
+**Important Notice!** Please note that in newer versions of dplyr (0.3.x+), the syntax ```%.%``` has been deprecated and replaced with ```%>%```. Videos in the course use %.%, which will produce warning messages. If you answer using the chain operator, you should use ```%>%``` instead. Another warning: Version 0.4.0 of dplyr has a bug when using the median function on the summarize layer, depending on the nature of the data being summarized. You may need to cast the data as a numeric (float) type to get the expected results, e.g. ```median(as.numeric(var))```. 
+
+A few additional hints follow below: 
+**Hint 1**: Use the ```group_by()```, ```summarise()```, and ```arrange()``` functions in the dplyr package to split the data frame by ```age_with_month```. Make sure you arrange by the correct variable (it's not ```age``` anymore). 
+**Hint 2**: The code should look similar to the code when we split the data frame by age and found summaries:
+```R
+age_groups <- group_by(pf, age)
+pf.fc_by_age <- summarise(age_groups,
+                          friend_count_mean = mean(friend_count),
+                          friend_count_median = median(friend_count),
+                          n = n())
+pf.fc_by_age <- arrange(pf.fc_by_age, age)
+head(pf.fc_by_age)
+```
+
+```R
+# Create a new data frame called
+# pf.fc_by_age_months that contains
+# the mean friend count, the median friend
+# count, and the number of users in each
+# group of age_with_months. The rows of the
+# data framed should be arranged in increasing
+# order by the age_with_months variable.
+
+# For example, the first two rows of the resulting
+# data frame would look something like...
+
+# age_with_months  friend_count_mean	friend_count_median	n
+#              13            275.0000                   275 2
+#        13.25000            133.2000                   101 11
+
+pf.fc_by_age_months <- pf %>%
+  group_by(age_with_months) %>%
+  summarise(friend_count_mean = mean(friend_count),
+           friend_count_median = median(friend_count),
+           n = n()) %>%
+  arrange(age_with_months)
+
+head(pf.fc_by_age_months)
+```
+```R
+#Alternate Solution
+age_with_months_groups <- group_by(pf, age_with_months)
+pf.fc_by_age_months2 <- summarise(age_with_months_groups,
+                                  friend_count_mean = mean(friend_count),
+                                  friend_count_median = median(friend_count),
+                                  n = n())
+
+pf.fc_by_age_months2 <- arrange(pf.fc_by_age_months2, age_with_months)
+
+head(pf.fc_by_age_months2)
+```
+
+##Noise in Conditional Means##
+```R
+# This programming assignment will not be graded, but when you submit your code,
+# the assignment will be marked as correct. By submitting your code, we can add
+# to the feedback messages and address common mistakes in the Instructor Notes.
+
+ggplot(aes(x = age_with_months, y = friend_count_mean),
+       data = subset(pf.fc_by_age_months, age_with_months < 71)) +
+  geom_line()
+```
+
+##Smoothing Conditional Means##
+```R
+p1 <- ggplot(aes(x = age, y = friend_count_mean),
+             data = subset(pf.fc_by_age, age < 71)) +
+  geom_line() +
+  geom_smooth()
+
+p2 <- ggplot(aes(x = age_with_months, y = friend_count_mean),
+             data = subset(pf.fc_by_age_months, age_with_months < 71)) +
+  geom_line() +
+  geom_smooth()
+
+p3 <- ggplot(aes(x = round(age / 5) * 5, y = friend_count),
+             data = subset(pf, age < 71)) +
+  geom_line(stat = 'summary', fun.y = mean)
+
+library(gridExtra)
+grid.arrange(p2, p1, p3, ncol = 1)
+```
+
+Scatterplot, and also augmented the scatter plot, with conditional summaries, like means. Benefits and the limitations of using correlation, to understand the relationship between two variables. How correlation may effect your decisions, over which variables to include in your final models. 
+How to make sense of data through adjusting our visualizations. Not neccessarily trust our interpretation of initial scatter plots like with the seasonal temperature data. How to use jitter and transparency to reduce over plotting. 
