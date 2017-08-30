@@ -723,3 +723,18 @@ grid.arrange(p2, p1, p3, ncol = 1)
 
 Scatterplot, and also augmented the scatter plot, with conditional summaries, like means. Benefits and the limitations of using correlation, to understand the relationship between two variables. How correlation may effect your decisions, over which variables to include in your final models. 
 How to make sense of data through adjusting our visualizations. Not neccessarily trust our interpretation of initial scatter plots like with the seasonal temperature data. How to use jitter and transparency to reduce over plotting. 
+
+##Quiz Summary##
+**Omit the top 1% of Price and carat##
+```R
+# Create a scatterplot of price vs carat
+# and omit the top 1% of price and carat
+# values.
+
+ggplot(aes(x = carat, y = price), data = diamonds) +
+  geom_point(colour = "orange") +
+  scale_x_continuous(limits = c(0, quantile(diamonds$carat, 0.99))) +
+  scale_y_continuous(limits = c(0, quantile(diamonds$price, 0.99))) +
+  labs(title = "Diamond Price vs. Mass", x = "Mass (carats)", y = "Price (USD")
+```
+
