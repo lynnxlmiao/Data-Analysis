@@ -3,6 +3,84 @@ title: "Quiz:Explore Two Variables"
 output: html_document
 ---
 ```{r}
+#1.price vs. x
+library(ggplot2)     #must load the ggplot package first
+data(diamonds)       #loads the diamonds data set since it comes with the ggplot package
+summary(diamonds)
+```
+```{r}
+ggplot(aes(x = x, y = price), data = diamonds) +
+  geom_point()
+```
+```{r}
+with(diamonds, cor.test(price, x))
+```
+```{r}
+with(diamonds, cor.test(price, y))
+```
+```{r}
+with(diamonds, cor.test(price, z))
+```
+```{r}
+# Create a simple scatter plot of price vs depth.
+ggplot(aes(x = depth, y = price), data = diamonds) +
+  geom_point()
+```
+```{r}
+# Change the code to make the transparency of the
+# points to be 1/100 of what they are now and mark
+# the x-axis every 2 units. See the instructor notes
+# for two hints.
 
+ggplot(data = diamonds, aes(x = depth, y = price)) + 
+  geom_point(alpha = 1/100) +
+  scale_x_continuous(breaks = seq(50, 75, 2))
+```
+```{r}
+with(diamonds, cor.test(price, depth))
+```
+```{r}
+summary(diamonds$price)
+```
+
+
+```{r}
+# Create a scatterplot of price vs carat
+# and omit the top 1% of price and carat
+# values.
+
+ggplot(aes(x = carat, y = price), data = diamonds) +
+  geom_point(colour = "orange") +
+  scale_x_continuous(limits = c(0, quantile(diamonds$carat, 0.99))) +
+  scale_y_continuous(limits = c(0, quantile(diamonds$price, 0.99))) +
+  labs(title = "Diamond Price vs. Mass", x = "Mass (carats)", y = "Price (USD")
+```
+
+```{r}
+# Create a scatterplot of price vs. volume (x * y * z).
+# This is a very rough approximation for a diamond's volume.
+
+# Create a new variable for volume in the diamonds data frame.
+# This will be useful in a later exercise.
+
+diamonds$volume <- with(diamonds, x * y * z)
+
+ggplot(diamonds, aes(volume, price)) + geom_point()
+```
+```{r}
+library(plyr)
+library(dplyr)
+
+#You can find out how many diamonds have 0 volume by using
+count(diamonds$volume == 0)
+```
+```{r}
+#If you ran the count function from plyr, you need to run this command in R to unload the plyr package.
+#The plyr package will conflict with the dplyr package in later exercises.
+detach("package:plyr", unload=TRUE)
+```
+```{r}
+#What is the correlation of price and volume? Exclude diamonds that have a volume of 0 or that are greater than or equal to 800.
+with(diamonds[diamonds$volume > 0 & diamonds$volume < 800, ], cor(volume, price))
 ```
 
