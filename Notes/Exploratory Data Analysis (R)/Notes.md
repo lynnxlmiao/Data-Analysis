@@ -738,3 +738,75 @@ ggplot(aes(x = carat, y = price), data = diamonds) +
   labs(title = "Diamond Price vs. Mass", x = "Mass (carats)", y = "Price (USD")
 ```
 
+[ggplot2 smooth](http://ggplot2.tidyverse.org/reference/geom_smooth.html)
+
+```R
+# Subset the data to exclude diamonds with a volume
+# greater than or equal to 800. Also, exclude diamonds
+# with a volume of 0. Adjust the transparency of the
+# points and add a linear model to the plot. (See the
+# Instructor Notes or look up the documentation of
+# geom_smooth() for more details about smoothers.)
+
+ggplot(diamonds[diamonds$volume > 0 & diamonds$volume < 800,], aes(x = volume, y = price)) +
+  geom_point(alpha = 1/100, colour = "orange") +
+  geom_smooth(method = "lm", colour = "blue") +
+  labs(title = "Price vs. Volume", x = "volume", y = "price(USD)")
+```
+
+###Mean Price By Clarity###
+**Note**: If you used the ```count()``` function from the plyr package before this exercise, you need to run this command to **unload the plyr package**: ```detach("package:plyr", unload=TRUE)```
+
+The ```plyr``` package will conflict with the ```dplyr``` package when doing this exercise. You will want to complete this exercise in RStudio with **ONLY** the dplyr package loaded.
+
+The [dplyr](https://blog.rstudio.com/2014/01/17/introducing-dplyr/) package.
+
+**Important Notice!** Please note that in newer versions of dplyr (0.3.x+), the syntax ```%.%``` has been deprecated and replaced with ```%>%```. Videos in the course use ```%.%```, which will produce warning messages. If you answer using the chain operator, you should use ```%>%``` instead.
+
+Another warning: Version 0.4.0 of dplyr has a bug when using the median function on the summarize layer, depending on the nature of the data being summarized. You may need to cast the data as a numeric (float) type to get the expected results, e.g. ```median(as.numeric(var))```.
+
+```R
+# Use the function dplyr package
+# to create a new data frame containing
+# info on diamonds by clarity.
+
+# Name the data frame diamondsByClarity
+
+# The data frame should contain the following
+# variables in this order.
+
+#       (1) mean_price
+#       (2) median_price
+#       (3) min_price
+#       (4) max_price
+#       (5) n
+
+# where n is the number of diamonds in each
+# level of clarity.
+
+library(dplyr)
+
+diamondsByClarity <- diamonds %>%
+  group_by(clarity) %>%
+  summarise(mean_price = mean(price),
+            median_price = median(price),
+            min_price = min(price),
+            max_price = max(price),
+           n = n()) %>%
+  arrange(clarity)
+
+diamondsByClarity
+```
+```R
+diamondsByClarity <- summarise(group_by(diamonds, clarity),
+                               mean_price = mean(price),
+                               median_price = median(price),
+                               min_price = min(price),
+                               max_price = max(price),
+                               n = n()
+                              )
+
+diamondsByClarity
+```
+
+[Save plots](http://ggplot2.tidyverse.org/reference/ggsave.html) using ```ggsave()```.
