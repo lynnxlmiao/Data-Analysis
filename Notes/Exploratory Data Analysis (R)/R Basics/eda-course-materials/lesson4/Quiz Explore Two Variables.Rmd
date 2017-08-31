@@ -83,4 +83,117 @@ detach("package:plyr", unload=TRUE)
 #What is the correlation of price and volume? Exclude diamonds that have a volume of 0 or that are greater than or equal to 800.
 with(diamonds[diamonds$volume > 0 & diamonds$volume < 800, ], cor(volume, price))
 ```
+```{r}
+# Subset the data to exclude diamonds with a volume
+# greater than or equal to 800. Also, exclude diamonds
+# with a volume of 0. Adjust the transparency of the
+# points and add a linear model to the plot. (See the
+# Instructor Notes or look up the documentation of
+# geom_smooth() for more details about smoothers.)
+
+ggplot(diamonds[diamonds$volume > 0 & diamonds$volume < 800,], aes(x = volume, y = price)) +
+  geom_point(alpha = 1/100, colour = "orange") +
+  geom_smooth(method = "lm", colour = "blue") +
+  labs(title = "Price vs. Volume", x = "volume", y = "price(USD)")
+```
+
+```{r}
+# Use the function dplyr package
+# to create a new data frame containing
+# info on diamonds by clarity.
+
+# Name the data frame diamondsByClarity
+
+# The data frame should contain the following
+# variables in this order.
+
+#       (1) mean_price
+#       (2) median_price
+#       (3) min_price
+#       (4) max_price
+#       (5) n
+
+# where n is the number of diamonds in each
+# level of clarity.
+
+library(dplyr)
+
+diamondsByClarity <- diamonds %>%
+  group_by(clarity) %>%
+  summarise(mean_price = mean(price),
+            median_price = median(price),
+            min_price = min(price),
+            max_price = max(price),
+           n = n()) %>%
+  arrange(clarity)
+
+diamondsByClarity
+```
+
+```{r Another solution}
+diamondsByClarity <- summarise(group_by(diamonds, clarity),
+                               mean_price = mean(price),
+                               median_price = median(price),
+                               min_price = min(price),
+                               max_price = max(price),
+                               n = n()
+                              )
+
+diamondsByClarity
+
+```
+```{r}
+# We've created summary data frames with the mean price
+# by clarity and color. You can run the code in R to
+# verify what data is in the variables diamonds_mp_by_clarity
+# and diamonds_mp_by_color.
+
+# Your task is to write additional code to create two bar plots
+# on one output image using the grid.arrange() function from the package
+# gridExtra.
+
+diamonds_by_clarity <- group_by(diamonds, clarity)
+diamonds_mp_by_clarity <- summarise(diamonds_by_clarity, mean_price = mean(price))
+
+diamonds_by_color <- group_by(diamonds, color)
+diamonds_mp_by_color <- summarise(diamonds_by_color, mean_price = mean(price))
+
+p1 <- ggplot(diamonds_mp_by_clarity, aes(clarity, mean_price)) + geom_bar(stat = "identity") +
+  labs(title = "Diamonds: Mean Price by Clarity", x = "Diamond Clarity", y = "Mean Price (USD)")
+
+p2 <- ggplot(diamonds_mp_by_color, aes(color, mean_price)) + geom_bar(stat = "identity") +
+  labs(title = "Diamonds: Mean Price by Color", x = "Diamond Color", y = "Mean Price (USD)")
+
+
+grid.arrange(p1, p2)
+```
+```{r}
+# The Gapminder website contains over 500 data sets with information about
+# the world's population. Your task is to continue the investigation you did at the
+# end of Problem Set 3 or you can start fresh and choose a different
+# data set from Gapminder.
+
+# If you're feeling adventurous or want to try some data munging see if you can
+# find a data set or scrape one from the web.
+
+# In your investigation, examine pairs of variable and create 2-5 plots that make
+# use of the techniques from Lesson 4.
+
+# You can find a link to the Gapminder website in the Instructor Notes.
+
+# Once you've completed your investigation, create a post in the discussions that includes:
+#       1. the variable(s) you investigated, your observations, and any summary statistics
+#       2. snippets of code that created the plots
+#       3. links to the images of your plots
+```
+```{r}
+#Step One: Continued investigation of per-capita oil consumption
+#Prepare Dataset
+
+# Load Gapminder dataset: Oil Consumption per Capita
+ocpc <- read.csv("C:/Files/Udacity/Data-Analysis/Notes/Exploratory Data Analysis (R)/R Basics/eda-course-materials/lesson4/Oil Consumption per capita.csv")
+
+# Fix name of country column
+colnames(ocpc)[1] <- "Country"
+```
 
