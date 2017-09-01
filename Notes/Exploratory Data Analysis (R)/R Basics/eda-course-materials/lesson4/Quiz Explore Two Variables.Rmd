@@ -185,7 +185,21 @@ grid.arrange(p1, p2)
 #       1. the variable(s) you investigated, your observations, and any summary statistics
 #       2. snippets of code that created the plots
 #       3. links to the images of your plots
+
+# see https://rpubs.com/mileserickson_rp/117236
 ```
+
+```{r}
+install.packages("tidyr")
+library(tidyr)
+```
+
+```{r}
+library(methods)
+install.packages("Matrix", type = "source")
+```
+
+
 ```{r}
 #Step One: Continued investigation of per-capita oil consumption
 #Prepare Dataset
@@ -193,7 +207,157 @@ grid.arrange(p1, p2)
 # Load Gapminder dataset: Oil Consumption per Capita
 ocpc <- read.csv("C:/Files/Udacity/Data-Analysis/Notes/Exploratory Data Analysis (R)/R Basics/eda-course-materials/lesson4/Oil Consumption per capita.csv")
 
+head(ocpc)
+```
+
+```{r}
+length(ocpc)
+```
+
+```{r}
 # Fix name of country column
 colnames(ocpc)[1] <- "Country"
+
+# Change from wide format to long format
+ocpc <- gather(ocpc, 'Year', 'Consumption', 2:47)  # Reshape data (47 columns)
+
+# Remove 'X' from year values
+ocpc$Year <- substr(ocpc$Year, 2, length(ocpc$Year))
+
+# Remove NA values
+ocpc <- ocpc[complete.cases(ocpc), ]
+
+# Change year to factor
+ocpc$Year <- as.factor(ocpc$Year)
+
+# Examine data
+head(ocpc)
+```
+
+```{r}
+library(ggplot2)
+#Examine changes in per capita oil consumption over time
+#Because we are tracking per-capita oil consumption for several dozen countries, a bar chart #or line chart tracking each country individually would be nearly impossible to read or #comprehend. However, a boxplot might show aggregate trends in per-capita oil consumption over #time.
+
+# Boxplot oil consumption by year
+ggplot(ocpc, aes(Year, Consumption)) + 
+  geom_boxplot() + 
+  scale_x_discrete(breaks = seq(1965, 2010, 5))
+```
+```{r}
+#Identify the outliers
+
+#As it turns out, the outliers are the most interesting feature of our boxplot. Let's identify the top five oil consumers at four different moments in our time series.
+
+# Print a bar plot ranking per capita oil consumption for the top five countries
+# at 15-year intervals between 1965-2010
+
+for(y in seq(1965, 2010, 15)) { 
+  
+  # Create a new dataframe for the current year only
+  ocpc_y <- ocpc[ocpc$Year == as.character(y), ]    # Find the top five consumers
+  ocpc_y_top5 <- ocpc_y[order(-ocpc_y$Consumption), ][1:5, ]
+  
+  # Print the bar plot
+  print(ggplot(ocpc_y_top5, aes(reorder(Country, Consumption), Consumption)) +
+    geom_bar(stat = "identity") + 
+    coord_flip() +
+    labs(x = "Country", y = "Oil consumption (tons/year/person)",
+         title = paste("Top 5 countries in per capita oil consumption,", as.character(y))) +
+    scale_y_continuous(limits = c(0, max(ocpc$Consumption)), breaks = 0:10)
+    )
+  
+  # Cleanup
+  rm(ocpc_y)
+  rm(ocpc_y_top5)
+}
+```
+```{r}
+#Add a second variable (per-capita income)
+
+# Import the Gapminder dataset tracking Gross National Income (GNI) per capita in constant year-2000 US dollars
+gnipc <- read.csv("C:/Files/Udacity/Data-Analysis/Notes/Exploratory Data Analysis (R)/R Basics/eda-course-materials/lesson4/indicatorGNIpercapitaconstant2000US.csv")
+
+head(gnipc)
+```
+
+```{r}
+# Apply transformations previously made to the oil consumption data:
+
+# Fix name of country column
+colnames(gnipc)[1] <- "Country"                               
+# Reshape data from wide format to long format
+gnipc <- gather(gnipc, 'Year', 'Income', 2:52)  
+# Remove "X" from year values
+gnipc$Year <- substr(gnipc$Year, 2, length(gnipc$Year))       
+# Remove NA values
+gnipc <- gnipc[complete.cases(gnipc), ]                         
+# Change year to factor
+gnipc$Year <- as.factor(gnipc$Year)
+
+# Examine data
+head(gnipc)
+```
+
+```{r}
+summary(gnipc)
+```
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+# Join GNI data with oil consumption data
+black_gold <- inner_join(ocpc, gnipc)
+```
+
+```{r}
+# Coerce 'Year' variable to factor
+black_gold$Year <- as.factor(black_gold$Year)
+
+# Examine data
+head(black_gold)
+```
+
+```{r}
+summary(black_gold)
+```
+
+```{r}
+# Plot oil consumption vs. income in 1965 and 2010:
+for(y in c(1965, 2010)) { 
+  # Create a new dataframe for the current year only
+  bg_y <- black_gold[black_gold$Year == as.character(y), ]  
+
+  # Print the scatterplot
+  print(ggplot(bg_y, aes(Income, Consumption)) + geom_point() +
+    labs(x="GNI per capita (2000 USD)", y = "Oil consumption per capita", title = paste("Oil Consumption vs. Income,", as.character(y))) +
+    scale_y_continuous(limits = c(0, max(ocpc$Consumption)), breaks = 0:10)
+    )
+  
+  # Cleanup
+  rm(bg_y)
+}
+```
+
+```{r}
+# Find correlation between per capita income and per capita GNI in 1965 and 2010:
+with(black_gold[black_gold$Year == "1965", ], cor(Income, Consumption))
+```
+
+```{r}
+with(black_gold[black_gold$Year == "2010", ], cor(Income, Consumption))
+```
+
+```{r}
+#Plot change in correlation over time
+
+cor_by_year <- summarise(group_by(black_gold, Year), Correlation = cor(Income, Consumption))
+
+ggplot(cor_by_year) + geom_line(aes(as.numeric(Year), Correlation)) +
+  scale_x_continuous(breaks = as.numeric(cor_by_year$Year), labels = ifelse((as.numeric(cor_by_year$Year) - 1) %% 5 == 0, as.character(cor_by_year$Year), "")) +
+  scale_y_continuous(breaks = seq(0, 1, 0.1)) +
+  labs(title = "Correlation between GNI and oil consumption (per capita)", x = "Year", y = "Correlation")
 ```
 
