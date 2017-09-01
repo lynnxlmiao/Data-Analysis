@@ -810,3 +810,16 @@ diamondsByClarity
 ```
 
 [Save plots](http://ggplot2.tidyverse.org/reference/ggsave.html) using ```ggsave()```.
+
+### inner_join ###
+```R
+library(dplyr)
+# Join GNI data with oil consumption data
+black_gold <- inner_join(ocpc, gnipc)
+```
+###as.factor###
+[Convert a column into a factor column.](https://www.rdocumentation.org/packages/h2o/versions/3.10.5.3/topics/as.factor)
+```R
+black_gold$Year <- as.factor(black_gold$Year)
+```
+
