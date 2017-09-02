@@ -823,3 +823,18 @@ black_gold <- inner_join(ocpc, gnipc)
 black_gold$Year <- as.factor(black_gold$Year)
 ```
 
+#Explore Many Variables#
+**Third Qualitative Variable**
+You can include multiple variables to split the data frame when using ```group_by()``` function in the dplyr package.
+
+```new_groupings <- group_by(data, variable1, variable2)```
+
+**OR**
+using chained commands...
+```R
+new_data_frame <- data_frame %>%
+  group_by(variable1, variable2) %>%
+```
+[Repeated use of ```summarise()``` and ```group_by()```:](https://classroom.udacity.com/nanodegrees/nd002/parts/0021345407/modules/316518875375460/lessons/701610057/concepts/8737286370923) The summarize function will automatically remove one level of grouping (the last group it collapsed).
+
+
