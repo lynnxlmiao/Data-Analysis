@@ -499,6 +499,7 @@ ggplot(aes(x = age, y = friend_count_mean), data = pf.fc_by_age)  +
 ggplot( ... ) +
   geom_line(stat = 'summary', fun.y = quantile,
             fun.args = list(probs = .9), ... )
+#stat参数表示统计的类型，而fun.y则表示应用于统计的函数
 ```
 
 To zoom in, the code should use the```coord_cartesian(xlim = c(13, 90))``` layer rather than ```xlim(13, 90)``` layer.
@@ -837,4 +838,267 @@ new_data_frame <- data_frame %>%
 ```
 [Repeated use of ```summarise()``` and ```group_by()```:](https://classroom.udacity.com/nanodegrees/nd002/parts/0021345407/modules/316518875375460/lessons/701610057/concepts/8737286370923) The summarize function will automatically remove one level of grouping (the last group it collapsed).
 
+```R
+# Write code to create a new data frame,
+# called 'pf.fc_by_age_gender', that contains
+# information on each age AND gender group.
 
+# The data frame should contain the following variables:
+
+#    mean_friend_count,
+#    median_friend_count,
+#    n (the number of users in each age and gender grouping)
+
+# Here is an example of the structure of your data frame. Your
+# data values will be different. Note that if you are grouping by
+# more than one variable, you will probably need to call the
+# ungroup() function. 
+
+#   age gender mean_friend_count median_friend_count    n
+# 1  13 female          247.2953                 150  207
+# 2  13   male          184.2342                  61  265
+# 3  14 female          329.1938                 245  834
+# 4  14   male          157.1204                  88 1201
+
+
+library(dplyr)
+
+#chain functions together %>%
+
+pf.fc_by_age_gender <- pf %>%
+  filter(!is.na(gender)) %>%
+  group_by(age, gender) %>%
+  summarise(mean_friend_count = mean(friend_count),
+            median_friend_count = median(friend_count),
+            n = n()) %>%
+  ungroup() %>%
+  arrange(age)
+  
+head(pf.fc_by_age_gender)
+```
+
+##Wide and Long Format##
+You can restructure the data using the ```tidyr``` package. 
+[data Wrangling with R pdf](https://s3.amazonaws.com/udacity-hosted-downloads/ud651/DataWranglingWithR.pdf)
+
+The code to change the data frame from long format to wide (or tidy format) is shown below. I encourage you to read the Data Wrangling pdf and write code using the tidyr package before looking at the solution below. 
+
+
+```R
+install.packages("tidyr")
+library(tidyr)
+
+spread(subset(pf.fc_by_age_gender, 
+       select = c('gender', 'age', 'median_friend_count')), 
+       gender, median_friend_count)
+```
+
+I think you will find the tidyr package easier to use than the reshape2 package. Both packages can get the job done.
+
+[An Introduction to reshape2 by Sean Anderson](http://seananderson.ca/2013/10/19/reshape.html)
+[Converting Between Long and Wide Format](http://www.cookbook-r.com/Manipulating_data/Converting_data_between_wide_and_long_format/)
+[Melt Data Frames](https://www.r-bloggers.com/melt/)
+
+##Reshaping Data##
+```R
+install.packages('reshape2')
+library(reshape2)
+```
+```R
+#dcast is used since we want the result to be a data frame
+#if we wanted an array or a matrix we could use a cast
+pf.fc_by_age_gender.wide <- dcast(pf.fc_by_age_gender,
+                                  age ~ gender,
+                                  value.var = 'median_friend_count')
+head(pf.fc_by_age_gender.wide)
+```
+##Ratio Plot##
+```R
+# Plot the ratio of the female to male median
+# friend counts using the data frame
+# pf.fc_by_age_gender.wide.
+
+# Think about what geom you should use.
+# Add a horizontal line to the plot with
+# a y intercept of 1, which will be the
+# base line. Look up the documentation
+# for geom_hline to do that. Use the parameter
+# linetype in geom_hline to make the
+# line dashed.
+
+# The linetype parameter can take the values 0-6:
+# 0 = blank, 1 = solid, 2 = dashed
+# 3 = dotted, 4 = dotdash, 5 = longdash
+# 6 = twodash
+
+ggplot(aes(x = age, y = female / male),
+       data = pf.fc_by_age_gender.wide) + 
+  geom_line() +
+  geom_hline(yintercept = 1, alpha = 0.3, linetype = 2)
+```
+##Third Quantitative Variable##
+You can use the ```floor()``` function to **round down** to the nearest integer. You can use the ```ceiling()``` function to **round up** to the nearest integer.
+
+##Cut a Variable##
+[The Cut Function](https://www.r-bloggers.com/r-function-of-the-day-cut-2/)
+A common mistake is to use ```year_joined``` rather than ```pf$year_joined``` or ```with(pf, year_joined...)```. Remember that you need to access the variable in the data frame.
+
+http://blog.wolfram.com/data/uploads/2012/10/xkcd.png
+
+##Plotting It All Together##
+```R
+ggplot(aes(x = age, y = friend_count),
+       data = subset(pf, !is.na(gender))) +
+  geom_line(aes(color = gender), stat = 'summary', fun.y = median)
+```
+```R
+ggplot(aes(x = age, y = friend_count),
+       data = subset(pf, !is.na(gender))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = median)
+```
+
+##Plot the Grand Mean##
+```R
+# Write code to do the following:
+
+# (1) Add another geom_line to code below
+# to plot the grand mean of the friend count vs age.
+
+# (2) Exclude any users whose year_joined.bucket is NA.
+
+# (3) Use a different line type for the grand mean.
+
+# As a reminder, the parameter linetype can take the values 0-6:
+
+# 0 = blank, 1 = solid, 2 = dashed
+# 3 = dotted, 4 = dotdash, 5 = longdash
+# 6 = twodash
+
+ggplot(aes(x = age, y = friend_count),
+       data = subset(pf, !is.na(gender))) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean) +
+#Grand mean:
+  geom_line(stat = 'summary', fun.y = mean, linetype = 2)
+```
+
+##Friending Rate##
+```R
+with(subset(pf, tenure >= 1), summary(friend_count / tenure))
+```
+
+##Friendships Initiated##
+```R
+ggplot(aes(x = tenure, y = friendships_initiated / tenure),
+       data = subset(pf, pf$tenure >= 1)) +
+  geom_line(aes(color = year_joined.bucket), stat = 'summary', fun.y = mean)
+```
+
+##Bias Variance Trade off Revisited##
+[Understanding the Bias-Variance Tradeoff](http://scott.fortmann-roe.com/docs/BiasVariance.html)
+**Note**: The code changing the binning is substituting ```x = tenure``` in the plotting expressions with ```x = 7 * round(tenure / 7)```, etc., binning values by the denominator in the ```round``` function and then transforming back to the natural scale with the constant in front.
+
+```R
+ggplot(aes(x = tenure, y = friendships_initiated / tenure),
+       data = subset(pf, tenure >= 1)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = 'summary',
+            fun.y = mean)
+
+ggplot(aes(x = 7 * round(tenure / 7), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+ggplot(aes(x = 30 * round(tenure / 30), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+```
+```R
+# Instead of geom_line(), use geom_smooth() to add a smoother to the plot.
+# You can use the defaults for geom_smooth() but do color the line
+# by year_joined.bucket
+
+ggplot(aes(x =tenure, y = friendships_initiated / tenure),
+       data = subset(pf, tenure >= 1)) +
+  geom_smooth(aes(color = year_joined.bucket))
+```
+
+[The Emotional Highs and Lows of the NFL season](https://www.facebook.com/notes/facebook-data-science/the-emotional-highs-and-lows-of-the-nfl-season/10152033221418859)
+
+##Introducing the Yogurt Dataset##
+[Bayesian Statistics and Marketing](http://www.perossi.org/home/bsm-1)
+
+##Number of Purchases##
+The transform function takes in a data frame and allows us to add different variables to it by recombining variables that are alreayd within the dara frame.
+```R
+# Create a new variable called all.purchases,
+# which gives the total counts of yogurt for
+# each observation or household.
+
+# One way to do this is using the transform
+# function. You can look up the function transform
+# and run the examples of code at the bottom of the
+# documentation to figure out what it does.
+
+# The transform function produces a data frame
+# so if you use it then save the result to 'yo'!
+
+# OR you can figure out another way to create the
+# variable.
+
+#the transform function takes in a data frame and allows us to add different variables to it by recombining variables that are alreayd within the dara frame.
+yo <- transform(yo, all.purchases = strawberry + blueberry + pina.colada + plain + mixed.berry)
+
+summary(yo$all.purchases)
+
+#OR
+#yo$all.purchases <- yo$strawberry + yo$blueberry + yo$pina.colada + #yo$plain + yo$mixed.berry
+```
+
+##Prices Over Time##
+```R
+# Create a scatterplot of price vs time.
+
+# This will be an example of a time series plot.
+
+ggplot(aes(x = time, y = price), data = yo) +
+  geom_jitter(alpha = 1/4, shape = 21, fill = I('#F79420'))
+
+#the most common prices, seems to be increasing over time, we also see some lower price points scattered about the graph.
+```
+
+##Looking at Samples of Households##
+**Note**: ```x %in% y``` returns a logical (boolean) vector the same length as x that says whether each entry in x appears in y. That is, for each entry in x, it checks to see whether it is in y. This allows us to subset the data so we get all the purchases occasions for the households in the sample. Then, we create scatterplots of price vs. time and facet by the sample id. 
+
+
+Use the ```pch``` or ```shape``` parameter to specify the symbol when plotting points. Scroll down to 'Plotting Points' on[ QuickR's Graphical Parameters](http://www.statmethods.net/advgraphs/parameters.html).
+
+```R
+#Set the seed for reproducible results
+set.seed(4230)
+#sampling from levels because those are all of the different households that we have
+sample.ids <- sample(levels(yo$id), 16)
+
+sample.ids
+```
+```
+[1] "2107953" "2123463" "2167320" "2127605" "2124750" "2133066"
+ [7] "2134676" "2141341" "2107706" "2151829" "2119693" "2122705"
+[13] "2115006" "2143271" "2101980" "2101758"
+```
+```R
+ggplot(aes(x = time, y = price),
+       data = subset(yo, id %in% sample.ids)) +
+  facet_wrap( ~ id) +
+  geom_line() +
+  geom_point(aes(size = all.purchases), pch = 1)
+```
