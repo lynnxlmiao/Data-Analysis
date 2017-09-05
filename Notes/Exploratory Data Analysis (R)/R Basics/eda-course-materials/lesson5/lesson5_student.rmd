@@ -481,11 +481,46 @@ Notes:
 
 ### Scatterplot Matrix
 Notes:
+```{r}
+install.packages('GGally')
+library('GGally')
+```
+
+```{r}
+theme_set(theme_minimal(20))
+
+#set the seed for reproducible results
+set.seed(1836)
+pf_subset <- pf[, c(2:15)]
+names(pf_subset)
+ggpairs(pf_subset[sample.int(nrow(pf_subset), 1000),])
+```
+
+```{r}
+set.seed(1836)
+
+pf[sample.int(nrow(pf), 1000), -1]
+```
+
+
+```{r}
+cor.test(pf$friendships_initiated, pf$friend_count)
+```
+
+```{r}
+cor.test(pf$age, pf$mobile_likes)
+```
 
 ***
 
 ### Even More Variables
 Notes:
+```{r}
+nci <- read.table('C:/Files/Udacity/Data-Analysis/Notes/Exploratory Data Analysis (R)/R Basics/eda-course-materials/lesson5/nci.tsv')
+
+#changing the colnames to produce a nicer plot
+colnames(nci) <- c(1:64)
+```
 
 ***
 
@@ -493,8 +528,12 @@ Notes:
 Notes:
 
 ```{r}
-nci <- read.table("nci.tsv")
+nci <- read.table("C:/Files/Udacity/Data-Analysis/Notes/Exploratory Data Analysis (R)/R Basics/eda-course-materials/lesson5/nci.tsv")
 colnames(nci) <- c(1:64)
+```
+
+```{r}
+library(reshape2)
 ```
 
 ```{r}
