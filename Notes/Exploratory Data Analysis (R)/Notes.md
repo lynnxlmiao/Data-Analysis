@@ -1102,3 +1102,30 @@ ggplot(aes(x = time, y = price),
   geom_line() +
   geom_point(aes(size = all.purchases), pch = 1)
 ```
+##Many Variables##
+Auxiliary variables
+
+##Scatterplot Matrices##
+You'll need to run the code ```install.packages('GGally')``` to install the package for creating this particular scatterplot matrix.
+
+If the plot takes a long time to render or if you want to see some of the scatterplot matrix, then only examine a smaller number of variables. You can use the following code or select fewer variables. We recommend including gender (the 6th variable)!
+
+```pf_subset = pf[, c('age', 'dob_year', 'dob_month', 'gender', 'tenure')]```
+
+You can also select a subset using the ```subset()``` function and the "select" argument:
+
+```pf_subset <- subset(pf, select = -c(userid, year_joined, year_joined_bucket))```
+
+The ```-``` sign in the "select" value indicates all but the listed columns.
+
+You may find in your matrix that variable labels are on the outer edges of the scatterplot matrix, rather than on the diagonal. If you want labels in the diagonal, you can set the ```axisLabels = 'internal'``` argument in your ggpairs command.
+
+##Heat Maps##
+[Melt data frames in R](https://www.r-bloggers.com/melt/)
+
+##Sumary##
+We started with simple extensions to the scatterplot,
+and plots of conditional summaries that you worked with in lesson four, such as adding summaries for multiple groups.
+Then, we tried some techniques for examining a large number of variables at once, such as scatter-plot matrices and heat maps.
+We also learned how to reshape data, moving from broad data with one row per case, to aggregate data with one row per combination of variables, and we moved back and forth between long and wide formats for our data. 
+
