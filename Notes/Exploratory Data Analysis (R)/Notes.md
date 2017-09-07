@@ -1129,3 +1129,11 @@ and plots of conditional summaries that you worked with in lesson four, such as 
 Then, we tried some techniques for examining a large number of variables at once, such as scatter-plot matrices and heat maps.
 We also learned how to reshape data, moving from broad data with one row per case, to aggregate data with one row per combination of variables, and we moved back and forth between long and wide formats for our data. 
 
+##[Mutate](https://www.rdocumentation.org/packages/dplyr/versions/0.5.0/topics/mutate)##
+Add New Variables.
+Mutate adds new variables and preserves existing; transmute drops existing variables.
+```R
+diamonds <- diamonds %>% 
+  mutate(volume = x * y *z)
+```
+
