@@ -1137,3 +1137,179 @@ diamonds <- diamonds %>%
   mutate(volume = x * y *z)
 ```
 
+#Diamonds & Price Predictions#
+##Scatterplot Review##
+Use the ```quantile()``` function inside of ```xlim``` and ```ylim``` to omit the top 1% of values for each variable.
+```R
+# Let's start by examining two variables in the data set.
+# The scatterplot is a powerful tool to help you understand
+# the relationship between two continuous variables.
+
+# We can quickly see if the relationship is linear or not.
+# In this case, we can use a variety of diamond
+# characteristics to help us figure out whether
+# the price advertised for any given diamond is 
+# reasonable or a rip-off.
+
+# Let's consider the price of a diamond and it's carat weight.
+# Create a scatterplot of price (y) vs carat weight (x).
+
+# Limit the x-axis and y-axis to omit the top 1% of values.
+
+qplot(data = diamonds, x = carat, y = price,
+      xlim = c(0, quantile(diamonds$carat, 0.99)),
+      ylim = c(0, quantile(diamonds$price, 0.99))) +
+  geom_point(fill = I('#F79420'), color = I('black'), shape = 21)
+```
+Add a linear trim line to the plot by using the stat smooth function with method equals lm.
+```R
+ggplot(data = diamonds, aes(x = carat, y = price)) +
+  geom_point(color = '#F79420', alpha = 1/4) +
+  stat_smooth(method = 'lm') +
+  scale_x_continuous(lim = c(0, quantile(diamonds$carat, 0.99))) +
+  scale_y_continuous(lim = c(0, quantile(diamonds$price, 0.99)))
+```
+##ggpairs Function##
+The "params" argument to the ```ggpairs``` function are there to change the shape of the plotted points in the plot matrix, to make them easier to see. GGally 1.0 changes the syntax of these plotting parameters to no longer be part of a params argument, and instead can be specified as follows:
+```R
+ggpairs(diamond_samp,
+  lower = list(continuous = wrap("points", shape = I('.'))),
+  upper = list(combo = wrap("box", outlier.shape = I('.'))))
+```
+You can click on the packages tab in RStudio to determine which packages have been installed.
+
+You may receive a message when installing the new packages. If so, click cancel, clear your workspace, and try installing the packages again.
+
+In this video, Solomon works with the ```plyr``` package. We worked with the ```dplyr``` package to manipulate data frames and to create new ones throughout the course. ```dplyr``` is the latest version of ```plyr``` that is specifically for working with data frames.
+
+Similarly, we worked with the ```reshape2``` package, which is the newest version of the ```reshape``` package.
+
+[ggpairs output](https://s3.amazonaws.com/udacity-hosted-downloads/ud651/ggpairs_landscape.pdf) When you duplicate the plot matrix on your local machine, you may want to add a axisLabels = 'internal' argument to your ggpairs function call to have the variable names on the diagonal of the matrix rather than on the outside.
+
+**ggpairs plots each variable against each other variable, pairwise.**
+
+```R
+# install these if necessary
+install.packages('GGally')  #particular plot 
+install.packages('scales')  #for a variety of things
+install.packages('memisc')  #summarize the regression
+install.packages('lattice') #few other things
+install.packages('MASS')    #various functions
+install.packages('car')     #recode variables
+install.packages('reshape') #reshape and wrangle data
+install.packages('dplyr')   #create summaries and transmissions
+
+# load the ggplot graphics package and the others
+library(ggplot2)
+library(GGally)
+library(scales)
+library(memisc)
+
+# sample 10,000 diamonds from the data set
+set.seed(20022012)
+diamond_samp <- diamonds[sample(1:length(diamonds$price), 10000), ]
+ggpairs(diamond_samp, params = c(shape = I('.'), outlier.shape = I('.')))
+```
+
+##The Demand of Diamonds##
+[Log Transformations](https://www.r-statistics.com/2013/05/log-transformations-for-skewed-and-wide-distributions-from-practical-data-science-with-r/)
+
+Often the distribution of any monetary variable like dollars will be highly skewed and vary over orders of magnitude.
+
+```R
+# Create two histograms of the price variable
+# and place them side by side on one output image.
+
+# We’ve put some code below to get you started.
+
+# The first plot should be a histogram of price
+# and the second plot should transform
+# the price variable using log10.
+
+# Set appropriate bin widths for each plot.
+# ggtitle() will add a title to each histogram.
+plot1 <- qplot(data = diamonds, x = price, binwidth = 100, fill = I('#0990D9')) + 
+  ggtitle('Price')
+
+plot2 <- qplot(data = diamonds, x = price, binwidth = 0.01, fill = I('#F79420')) +
+  ggtitle('Price (log10)') +
+  scale_x_log10()
+
+library(gridExtra)
+library(grid)
+grid.arrange(plot1, plot2, ncol = 2)
+```
+
+##Scatterplot Transformation##
+[Basic Structure of a Function](https://www.youtube.com/watch?v=Z1wB1rHAYzQ&list=PLOU2XLYxmsIK9qQfztXeybpHvru-TrqAP)
+
+```R
+qplot(carat, price, data = diamonds) +
+  scale_y_continuous(trans = log10_trans()) +
+  ggtitle('Price (log10) by Carat')
+```
+Create a new function to transform the carat variable.
+```R
+#Create a new function to transform the carat variable
+cuberoot_trans = function() trans_new('cuberoot', transform = function(x) x^(1/3),
+                                      inverse = function(x) x^3)
+```
+```R
+#Use the cuberoot_trans function
+ggplot(aes(carat, price), data = diamonds) + 
+  geom_point() + 
+  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
+                     breaks = c(0.2, 0.5, 1, 2, 3)) + 
+  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
+                     breaks = c(350, 1000, 5000, 10000, 15000)) +
+  ggtitle('Price (log10) by Cube-Root of Carat')
+```
+
+##Overplotting Revisited##
+
+```{r Sort and Head Tables}
+head(sort(table(diamonds$carat), decreasing = T))
+head(sort(table(diamonds$price), decreasing = T))
+```
+```{r Overplotting Revisited}
+# Add a layer to adjust the features of the
+# scatterplot. Set the transparency to one half,
+# the size to three-fourths, and jitter the points.
+
+ggplot(aes(carat, price), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 0.75, position = 'jitter') + 
+  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
+                     breaks = c(0.2, 0.5, 1, 2, 3)) + 
+  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
+                     breaks = c(350, 1000, 5000, 10000, 15000)) +
+  ggtitle('Price (log10) by Cube-Root of Carat')
+```
+
+##Price vs. Carat and Clarity##
+ggplot2: [scale_colour_brewer](http://ggplot2.tidyverse.org/reference/scale_brewer.html)
+ggplot2: [Color Brewer Palettes and Safe Colors](http://www.cookbook-r.com/Graphs/Colors_(ggplot2/#palettes-color-brewer)
+
+Run the following code in RStudio to install and load the RColorBrewer package.
+```R
+install.packages('RColorBrewer', dependencies = TRUE)
+library(RColorBrewer)
+```
+```{r Price vs. Carat and Clarity}
+# Adjust the code below to color the points by clarity.
+
+# A layer called scale_color_brewer() has 
+# been added to adjust the legend and
+# provide custom colors.
+library(scales)
+
+ggplot(aes(x = carat, y = price, colour = clarity), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  scale_color_brewer(type = 'div',
+    guide = guide_legend(title = 'Clarity', reverse = T,
+    override.aes = list(alpha = 1, size = 2))) +  
+  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
+    breaks = c(0.2, 0.5, 1, 2, 3)) + 
+  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
+    breaks = c(350, 1000, 5000, 10000, 15000)) +
+  ggtitle('Price (log10) by Cube-Root of Carat and Clarity')
+```
