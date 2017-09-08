@@ -9,14 +9,40 @@ Notes:
 ### Scatterplot Review
 
 ```{r Scatterplot Review}
+# Let's start by examining two variables in the data set.
+# The scatterplot is a powerful tool to help you understand
+# the relationship between two continuous variables.
 
+# We can quickly see if the relationship is linear or not.
+# In this case, we can use a variety of diamond
+# characteristics to help us figure out whether
+# the price advertised for any given diamond is 
+# reasonable or a rip-off.
+
+# Let's consider the price of a diamond and it's carat weight.
+# Create a scatterplot of price (y) vs carat weight (x).
+
+# Limit the x-axis and y-axis to omit the top 1% of values.
+
+qplot(data = diamonds, x = carat, y = price,
+      xlim = c(0, quantile(diamonds$carat, 0.99)),
+      ylim = c(0, quantile(diamonds$price, 0.99))) +
+  geom_point(fill = I('#F79420'), color = I('black'), shape = 21)
+```
+
+```{r}
+ggplot(data = diamonds, aes(x = carat, y = price)) +
+  geom_point(color = '#F79420', alpha = 1/4) +
+  stat_smooth(method = 'lm') +
+  scale_x_continuous(lim = c(0, quantile(diamonds$carat, 0.99))) +
+  scale_y_continuous(lim = c(0, quantile(diamonds$price, 0.99)))
 ```
 
 ***
 
 ### Price and Carat Relationship
 Response:
-
+A nonlinear relationship. Maybe it's exponential. Also the dispersion or variance or the relationship also increase as carat size increases. 
 ***
 
 ### Frances Gerety
@@ -34,24 +60,27 @@ Notes:
 
 ### ggpairs Function
 Notes:
-
-```{r ggpairs Function}
+```{r}
 # install these if necessary
-install.packages('GGally')
-install.packages('scales')
-install.packages('memisc')
-install.packages('lattice')
-install.packages('MASS')
-install.packages('car')
-install.packages('reshape')
-install.packages('plyr')
+install.packages('GGally')  #particular plot 
+install.packages('scales')  #for a variety of things
+install.packages('memisc')  #summarize the regression
+install.packages('lattice') #few other things
+install.packages('MASS')    #various functions
+install.packages('car')     #recode variables
+install.packages('reshape') #reshape and wrangle data
+install.packages('dplyr')   #create summaries and transmissions
+```
 
+```{r}
 # load the ggplot graphics package and the others
 library(ggplot2)
 library(GGally)
 library(scales)
 library(memisc)
+```
 
+```{r ggpairs Function}
 # sample 10,000 diamonds from the data set
 set.seed(20022012)
 diamond_samp <- diamonds[sample(1:length(diamonds$price), 10000), ]
@@ -60,27 +89,53 @@ ggpairs(diamond_samp, params = c(shape = I('.'), outlier.shape = I('.')))
 
 What are some things you notice in the ggpairs output?
 Response:
-
+There may be relationships between price and clarity and price and color.
+And the critical factor dribing price is the size, or the carat weight of the diamond, it is nonlinear, even exponential.
 ***
 
 ### The Demand of Diamonds
 Notes:
 
 ```{r The Demand of Diamonds}
+# Create two histograms of the price variable
+# and place them side by side on one output image.
 
+# We've put some code below to get you started.
+
+# The first plot should be a histogram of price
+# and the second plot should transform
+# the price variable using log10.
+
+# Set appropriate bin widths for each plot.
+# ggtitle() will add a title to each histogram.
+
+library(gridExtra)
+
+plot1 <- qplot(data = diamonds, x = price, binwidth = 100, fill = I('#0990D9')) + 
+  ggtitle('Price')
+
+plot2 <- qplot(data = diamonds, x = price, binwidth = 0.01, fill = I('#F79420')) +
+  ggtitle('Price (log10)') +
+  scale_x_log10()
+
+library(gridExtra)
+library(grid)
+grid.arrange(plot1, plot2, ncol = 2)
 ```
 
 ***
 
 ### Connecting Demand and Price Distributions
 Notes:
-
+The price of diamonds are pretty heavily skewed, but when add price log function, it is much like a normal distribution, and can even see a little bit of bimodality on the log plot. 
 ***
 
 ### Scatterplot Transformation
 
 ```{r Scatterplot Transformation}
-
+qplot(carat, price, data = diamonds) +
+  scale_y_continuous(trans = log10_trans()) +
+  ggtitle('Price (log10) by Carat')
 ```
 
 
@@ -107,13 +162,18 @@ ggplot(aes(carat, price), data = diamonds) +
 ### Overplotting Revisited
 
 ```{r Sort and Head Tables}
-
+head(sort(table(diamonds$carat), decreasing = T))
+head(sort(table(diamonds$price), decreasing = T))
 ```
 
 
 ```{r Overplotting Revisited}
+# Add a layer to adjust the features of the
+# scatterplot. Set the transparency to one half,
+# the size to three-fourths, and jitter the points.
+
 ggplot(aes(carat, price), data = diamonds) + 
-  geom_point() + 
+  geom_point(alpha = 0.5, size = 0.75, position = 'jitter') + 
   scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
                      breaks = c(0.2, 0.5, 1, 2, 3)) + 
   scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
@@ -131,12 +191,22 @@ Notes:
 ### Price vs. Carat and Clarity
 
 Alter the code below.
-```{r Price vs. Carat and Clarity}
-# install and load the RColorBrewer package
-install.packages('RColorBrewer')
-library(RColorBrewer)
 
-ggplot(aes(x = carat, y = price), data = diamonds) + 
+```{r}
+# install and load the RColorBrewer package
+install.packages('RColorBrewer', dependencies = TRUE)
+library(RColorBrewer)
+```
+
+```{r Price vs. Carat and Clarity}
+# Adjust the code below to color the points by clarity.
+
+# A layer called scale_color_brewer() has 
+# been added to adjust the legend and
+# provide custom colors.
+library(scales)
+
+ggplot(aes(x = carat, y = price, colour = clarity), data = diamonds) + 
   geom_point(alpha = 0.5, size = 1, position = 'jitter') +
   scale_color_brewer(type = 'div',
     guide = guide_legend(title = 'Clarity', reverse = T,
