@@ -1313,3 +1313,147 @@ ggplot(aes(x = carat, y = price, colour = clarity), data = diamonds) +
     breaks = c(350, 1000, 5000, 10000, 15000)) +
   ggtitle('Price (log10) by Cube-Root of Carat and Clarity')
 ```
+##Price vs. Carat and Cut##
+```{r Price vs. Carat and Cut}
+library(scales)
+
+ggplot(aes(x = carat, y = price, color = cut), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  scale_color_brewer(type = 'div',
+                     guide = guide_legend(title = 'cut', reverse = T,
+                                          override.aes = list(alpha = 1, size = 2))) +  
+  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
+                     breaks = c(0.2, 0.5, 1, 2, 3)) + 
+  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
+                     breaks = c(350, 1000, 5000, 10000, 15000)) +
+  ggtitle('Price (log10) by Cube-Root of Carat and Cut')
+```
+
+##Price vs. Carat and Color##
+```{r Price vs. Carat and Color}
+ggplot(aes(x = carat, y = price, color = color), data = diamonds) + 
+  geom_point(alpha = 0.5, size = 1, position = 'jitter') +
+  scale_color_brewer(type = 'div',
+                     guide = guide_legend(title = 'Color', reverse = FALSE,
+                                          override.aes = list(alpha = 1, size = 2))) +  
+  scale_x_continuous(trans = cuberoot_trans(), limits = c(0.2, 3),
+                     breaks = c(0.2, 0.5, 1, 2, 3)) + 
+  scale_y_continuous(trans = log10_trans(), limits = c(350, 15000),
+                     breaks = c(350, 1000, 5000, 10000, 15000)) +
+  ggtitle('Price (log10) by Cube-Root of Carat and Color')
+```
+
+##Linear Models in R##
+Predict! Use the lm() function.
+**lm(y ~ x)**
+y: outcome variable
+x:explanatory variable
+
+##Building the Linear Model##
+[Linear Models and Operatior in R](http://data.princeton.edu/R/linearModels.html)
+
+If you are running this code on your local computer, you may need to modify the last line to state:
+```R
+mtable(m1, m2, m3, m4, m5, sdigits = 3)
+```
+This will ensure that the output at the end of the table shows three significant digits like shown in the video.
+
+```{r Building the Linear Model}
+library(memisc)
+
+m1 <- lm(I(log(price)) ~ I(carat^(1/3)), data = diamonds)
+#I stands for as is
+#This is instead of instrucing R to interpret these symbols as part of the formula to construct the design matrix for the regression.
+m2 <- update(m1, ~ . + carat)
+m3 <- update(m2, ~ . + cut)
+m4 <- update(m3, ~ . + color)
+m5 <- update(m4, ~ . + clarity)
+mtable(m1, m2, m3, m4, m5, sdigits = 3)
+```
+##Model Problems##
+[Interpreting Regression Coefficients in R on R Bloggers](https://www.r-bloggers.com/interpreting-regression-coefficient-in-r/?utm_source=feedburner&utm_medium=email&utm_campaign=Feed%3A+RBloggers+%28R+bloggers%29)
+[Interpreting Regression Coefficients on the Analysis Factor blog](http://www.theanalysisfactor.com/interpreting-regression-coefficients/)
+[Fitting and Interpreting Linear Models by ŷhat](http://blog.yhat.com/posts/r-lm-summary.html)
+[Another Explanation of Factor Coefficients in Linear Models on Stats StackExchange](https://stats.stackexchange.com/questions/24242/how-to-apply-coefficient-term-for-factors-and-interactive-terms-in-a-linear-equa/24256#24256)
+
+##A Bigger, Better Data Set##
+```{r}
+#install bitops and RCurl
+install.packages('bitops')
+install.packages('RCurl')
+library('bitops')
+library('RCurl')
+```
+```{r A Bigger, Better Data Set}
+#diamondsurl = getBinaryURL("https://raw.github.com/solomonm/diamonds-data/master/BigDiamonds.Rda")
+#load(rawConnection(diamondsurl))
+
+load("C:/Files/Udacity/Data-Analysis/Notes/Exploratory Data Analysis (R)/R Basics/eda-course-materials/lesson6/BigDiamonds.rda")
+```
+```{r Building a Model Using the Big Diamonds Data Set}
+#We will only use GIA certified diamonds in this modle, and only look at diamonds under $10,000 because these are the type of diamonds sold at most retailers and hence the kind we care most about.
+#By trimming the most expensive diamonds from the data set, our model will also be less likely to be thrown off by outliers and the higher variants at the high-end of price and carat.
+
+# Your task is to build five linear models like Solomon
+# did for the diamonds data set only this
+# time you'll use a sample of diamonds from the
+# diamondsbig data set.
+
+# Be sure to make use of the same variables
+# (logprice, carat, etc.) and model
+# names (m1, m2, m3, m4, m5).
+
+# To get the diamondsbig data into RStudio
+# on your machine, copy, paste, and run the
+# code in the Instructor Notes. There's
+# 598,024 diamonds in this data set!
+
+# Since the data set is so large,
+# you are going to use a sample of the
+# data set to compute the models. You can use
+# the entire data set on your machine which
+# will produce slightly different coefficients
+# and statistics for the models.
+
+# sample 10,000 diamonds from the data set
+set.seed(20022012)
+diamondbig_samp <- diamondsbig[sample(1:length(diamonds$price), 10000), ]
+```
+```{r}
+#diamondbig_samp$logprice = log(diamondbig_samp$price)
+m1 <- lm(I(log(price)) ~ I(carat^(1/3)),
+         data = diamondbig_samp[diamondbig_samp$price < 10000 &
+                                  diamondbig_samp$cert == "GIA",])
+m2 <- update(m1, ~ . + carat)
+m3 <- update(m2, ~ . + cut)
+m4 <- update(m3, ~ . + color)
+m5 <- update(m4, ~ . + clarity)
+mtable(m1, m2, m3, m4, m5, sdigits = 3)
+```
+
+##Predictions##
+[Confidence Intervals](https://en.wikipedia.org/wiki/Confidence_interval)
+The prediction interval here may be slightly conservative, as the model errors are heteroskedastic over carat (and hence price) even after our log and cube-root transformations.
+
+See the output of the following code.
+```R
+dat = data.frame(m4$model, m4$residuals)
+
+with(dat, sd(m4.residuals))
+
+with(subset(dat, carat > .9 & carat < 1.1), sd(m4.residuals))
+
+dat$resid <- as.numeric(dat$m4.residuals)
+ggplot(aes(y = resid, x = round(carat, 2)), data = dat) +
+  geom_line(stat = "summary", fun.y = sd)
+```
+RUN Console
+```
+> exp(modelEstimate)
+```
+ fit      lwr      upr
+1 430.2906 307.6785 601.7645
+
+The results yield an expected value for price given the characteristics of our diamond, and the upper and lower bounds of a 95% confidence level. 
+
+[How to analyze your Facebook friends network with R](http://blog.revolutionanalytics.com/2013/11/how-to-analyze-you-facebook-friends-network-with-r.html)
