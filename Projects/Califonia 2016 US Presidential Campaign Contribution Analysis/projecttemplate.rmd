@@ -1,6 +1,7 @@
 California 2016 US Presidential Campaign Contribution Analysis
 ========================================================
 by Xilin Miao
+
 > **Tip**: You will see quoted sections like this throughout the template to
 help you construct your report. Make sure that you remove these notes before
 you finish and submit your project!
@@ -10,7 +11,8 @@ good formatting techniques, including limiting your lines to 80 characters or
 less. If you're using RStudio, go into Preferences \> Code \> Display to set up
 a margin line to help you keep track of this guideline!
 
-#Introduction#
+#Introduction
+
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 # Load all of the packages that you end up using in your analysis in this code
