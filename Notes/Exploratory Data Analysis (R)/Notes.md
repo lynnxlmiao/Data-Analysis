@@ -1457,3 +1457,7 @@ RUN Console
 The results yield an expected value for price given the characteristics of our diamond, and the upper and lower bounds of a 95% confidence level. 
 
 [How to analyze your Facebook friends network with R](http://blog.revolutionanalytics.com/2013/11/how-to-analyze-you-facebook-friends-network-with-r.html)
+
+[Installing R package](https://www.r-bloggers.com/installing-r-packages/)
+
+[Hadley Wickham's R Style Guide](http://adv-r.had.co.nz/Style.html)
