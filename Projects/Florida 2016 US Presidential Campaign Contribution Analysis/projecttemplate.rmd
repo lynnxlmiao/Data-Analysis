@@ -1,4 +1,4 @@
-California 2016 US Presidential Campaign Contribution Analysis
+Florida 2016 US Presidential Campaign Contribution Analysis
 ========================================================
 by Xilin Miao
 
@@ -12,7 +12,7 @@ less. If you're using RStudio, go into Preferences \> Code \> Display to set up
 a margin line to help you keep track of this guideline!
 
 #Introduction
-
+This is an exploration of 2016 US presidential campaigns financial contributions of Florida. Presidential campaign finance data contains much informatino wich is very valuable
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 # Load all of the packages that you end up using in your analysis in this code
