@@ -23,10 +23,21 @@ Lastly, where do these donations come from geographically?
 
 #Dataset
 Download dataset and load data.
-```{r}
 
+```{r}
+# Load the Data
+FL <- read.csv("C:/Files/Udacity/Data-Analysis/Projects/Florida 2016 US Presidential Campaign Contribution Analysis/P00000001-FL.csv", stringsAsFactors = F, row.names = NULL)[,-19]
+colnames(FL) <- c('cmte_id', 'cand_id', 'cand_nm', 'contbr_nm',	'contbr_city', 
+                  'contbr_st', 'contbr_zip',	'contbr_employer', 
+                  'contbr_occupation',	'contb_receipt_amt', 'contb_receipt_dt',
+                  'receipt_desc', 'memo_cd', 'memo_text', 'form_tp', 'file_num', 
+                  'tran_id', 'election_tp')
+
+str(FL)
 ```
 
+##Data Preprocessing
+###Create New Variables
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 # Load all of the packages that you end up using in your analysis in this code
