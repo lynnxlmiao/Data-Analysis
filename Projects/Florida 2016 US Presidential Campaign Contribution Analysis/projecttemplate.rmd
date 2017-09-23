@@ -36,9 +36,6 @@ colnames(FL) <- c('cmte_id', 'cand_id', 'cand_nm', 'contbr_nm',	'contbr_city',
 str(FL)
 ```
 
-##Data Preprocessing
-###Create New Variables
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 # Load all of the packages that you end up using in your analysis in this code
 # chunk.
@@ -53,12 +50,115 @@ str(FL)
 # want it to. This will clean up the flow of your report.
 
 library(ggplot2)
+library(ggthemes)
+library(gridExtra)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(zipcode)
+library(reshape2)
+library(gender)
+library(lubridate)
+library(maps)
+library(choroplethr)
+library(choroplethrMaps)
+library(choroplethrZip)
 ```
 
-```{r echo=FALSE, Load_the_Data}
-# Load the Data
 
+##Data Preprocessing
+###Create New Variables
+Before analyzing this data set, we should firstly do data processing since some features which I am interested in are not included in such as gender, and donor's geographical location in latigude and longtitude. 
+
+```{r}
+# Create party variable
+
+democrat <- c("Clinton, Hillary Rodham",
+                "Lessig, Lawrence",
+                "O'Malley, Martin Joseph",
+                "Sanders, Bernard",
+                "Webb, James Henry Jr.")
+
+others <- c("Johnson, Gary", "McMullin, Evan", "Stein, Jill")
+
+FL$party <- ifelse(FL$cand_nm %in% democrat, "Democrat", "Republican")
+FL$party[FL$cand_nm %in% others] <- 'others'
 ```
+
+```{r}
+# Extract first name from contbr_nm for gender redication
+FL$contbr_first_nm <- sub(" .*", "", sub(".*, ", "", FL$contbr_nm))
+```
+
+```{r}
+#Create gender dataframe
+gender_df <- gender(FL$contbr_first_nm, method = "ssa", c(1932, 2012), countries = "United States")  
+# "ssa" here means looks up names based from the U.S Social Security Administration baby name data
+
+#Create gender variable
+gender_df <- unique(gender_df)
+names(gender_df)[1] = "contbr_first_nm"
+FL <- inner_join(FL, gender_df, by = 'contbr_first_nm')
+```
+
+
+```{r}
+# Convert zipcode to latitude and longitude by zipcode package
+data(zipcode)
+FL$contbr_zip <- substr(FL$contbr_zip, 1, 5)
+zipcode_FL <- subset(zipcode, state == "FL")[, -c(2,3)]
+colnames(zipcode_FL) <- c("contbr_zip", "latitude", "longitude")
+FL <- merge(FL, zipcode_FL)
+```
+
+```{r}
+#Extract conbution recipt year and month
+FL <- FL %>%
+  mutate(date = as.Date(contb_receipt_dt, "%d-%b-%y"),
+         year = year(date),
+         month = month(date),
+         year_month = paste(month.abb[month], ",", year))
+```
+
+###Data Clean
+After looking into this data set, we noticed that there are 7608 negative contributions (contb_receipt_amt). These negative values should be the refund, so we should omit these observations. And since there is [contribution limits for 2015-2016](https://www.fec.gov/help-candidates-and-committees/candidate-taking-receipts/contribution-limits-candidates/), there is a limit which is $2,700 per election, per candidate. So the contribution above $2,700 will also be omitted since these contribution will be refunded lastly.
+
+```{r}
+nrow(FL[FL$contb_receipt_amt <= 0,])
+```
+```{r}
+FL = filter(FL, FL$contb_receipt_amt > 0 & FL$contb_receipt_amt <= 2700)
+```
+
+##Dataset Overview
+```{r}
+str(FL)
+```
+
+After processing the data, we have removed observations with either negative amount or amount exceed $2,700. Except [the original 18 variables](ftp://ftp.fec.gov/FEC/Presidential_Map/2016/DATA_DICTIONARIES/CONTRIBUTOR_FORMAT.txt), 
+
+#Univariate Plots Section
+To start, let's have a glance of how the contribution distributed.
+```{r}
+p1 <- ggplot(aes(x = contb_receipt_amt), data = FL) +
+  geom_histogram(bins = 50)
+p2 <- ggplot(aes(x = 1, y = contb_receipt_amt), data = FL) +
+  geom_boxplot()
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+From upper plots we can see that there are so many outliers. To better understand the distribution of the contribution, now transform the plots to log10.
+```{r}
+ggplot(aes(x = contb_receipt_amt), data = FL) +
+  geom_histogram(binwidth = 0.05) +
+  scale_x_log10() +
+  ggtitle('Histogram of the Contribution (with log10)')
+
+tail(sort(table(FL$contb_receipt_amt)), 5)
+summary(FL$contb_receipt_amt)
+```
+
 
 > **Tip**: Before you create any plots, it is a good idea to provide a short
 introduction into the dataset that you are planning to explore. Replace this
