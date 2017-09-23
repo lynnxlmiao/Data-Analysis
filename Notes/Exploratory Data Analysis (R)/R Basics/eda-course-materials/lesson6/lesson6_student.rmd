@@ -413,3 +413,31 @@ Notes:
 Click **KnitHTML** to see all of your hard work and to have an html
 page of this lesson, your answers, and your notes!
 
+```{r}
+install.packages("zipcode")
+```
+```{r}
+install.packages("gender")
+```
+
+```{r}
+install.packages("choroplethr")
+```
+```{r}
+install.packages("choroplethrMaps")
+```
+
+```{r}
+install.packages("chroplethrZip")
+```
+```{r}
+install.packages("choroplethrZip")
+```
+```{r}
+install.packages("devtools")
+```
+```{r}
+library(devtools)
+install_github('arilamstein/choroplethrZip@v1.4.0')
+```
+
