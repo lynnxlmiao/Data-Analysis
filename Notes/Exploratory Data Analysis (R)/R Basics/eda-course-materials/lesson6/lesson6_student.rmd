@@ -440,4 +440,7 @@ install.packages("devtools")
 library(devtools)
 install_github('arilamstein/choroplethrZip@v1.4.0')
 ```
+```{r}
+install.packages("gdata")
+```
 
