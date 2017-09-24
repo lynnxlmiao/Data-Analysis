@@ -2,23 +2,15 @@ Florida 2016 US Presidential Campaign Contribution Analysis
 ========================================================
 by Xilin Miao
 
-> **Tip**: You will see quoted sections like this throughout the template to
-help you construct your report. Make sure that you remove these notes before
-you finish and submit your project!
-
-> **Tip**: One of the requirements of this project is that your code follows
-good formatting techniques, including limiting your lines to 80 characters or
-less. If you're using RStudio, go into Preferences \> Code \> Display to set up
-a margin line to help you keep track of this guideline!
-
 #Introduction
 This is an exploration of 2016 US presidential campaigns financial contributions of Florida. Presidential campaign finance data contains much informatino wich is very valuable to reveal the demographic and geographic support for each party and candidate, and it also reflect the current status of the candidates in the race.
 
 The reason why I chose Florida's data is that Florida has been the most pupulated of the "swing states", means where both political parties have a similar level of support. For this exploratory data analysis, the data of 2016 presidential campaigns financial contributions is from [Federal Election Commission](http://classic.fec.gov/disclosurep/pnational.do).
 
-In this analysis, I will try to answer three questions: 
+In this analysis, I will try to answer four questions: 
 Firstly, which party and candidates received the most financial support in Florida (from the donations received)?
 Secondly, is there a difference in donations between genders, and what is the patterns here?
+Next, who made these contributions? which occupation make the most?
 Lastly, where do these donations come from geographically?
 
 #Dataset
@@ -82,11 +74,11 @@ democrat <- c("Clinton, Hillary Rodham",
 others <- c("Johnson, Gary", "McMullin, Evan", "Stein, Jill")
 
 FL$party <- ifelse(FL$cand_nm %in% democrat, "Democrat", "Republican")
-FL$party[FL$cand_nm %in% others] <- 'others'
+FL$party[FL$cand_nm %in% others] <- 'Others'
 ```
 
 ```{r}
-# Extract first name from contbr_nm for gender redication
+# Extract first name from contbr_nm for gender predication
 FL$contbr_first_nm <- sub(" .*", "", sub(".*, ", "", FL$contbr_nm))
 ```
 
@@ -135,9 +127,22 @@ FL = filter(FL, FL$contb_receipt_amt > 0 & FL$contb_receipt_amt <= 2700)
 str(FL)
 ```
 
-After processing the data, we have removed observations with either negative amount or amount exceed $2,700. Except [the original 18 variables](ftp://ftp.fec.gov/FEC/Presidential_Map/2016/DATA_DICTIONARIES/CONTRIBUTOR_FORMAT.txt), 
+After processing the data, we have removed observations with either negative amount or amount exceed $2,700. Except [the original 18 variables](ftp://ftp.fec.gov/FEC/Presidential_Map/2016/DATA_DICTIONARIES/CONTRIBUTOR_FORMAT.txt), following main variables were added also:
+* party: candidate' party affiliation
+* latitude: contributors' geographic latitude
+* longitude: contributors' geographic lonitude
+* contbr_first_nm: contributors' first name
+* gender: contributors' gender
+* date: contribution receipt data
+* year: contribution receipt year
+* month: contribution receipt month
+* year_month: contribution receipt date (year month format)
 
 #Univariate Plots Section
+```{r}
+summary(FL$contb_receipt_amt)
+```
+
 To start, let's have a glance of how the contribution distributed.
 ```{r}
 p1 <- ggplot(aes(x = contb_receipt_amt), data = FL) +
@@ -159,70 +164,453 @@ tail(sort(table(FL$contb_receipt_amt)), 5)
 summary(FL$contb_receipt_amt)
 ```
 
+The distribution looks normal now and we can see that most donors made small amount of contributions which is among about 50 to 125. Now let's see the contribution distribution across the parties, candidates, genders and occupations.
 
-> **Tip**: Before you create any plots, it is a good idea to provide a short
-introduction into the dataset that you are planning to explore. Replace this
-quoted text with that general information!
 
-# Univariate Plots Section
+```{r}
+#Create party dataframe with Descending order
+party_group <- group_by(FL, party)
+FL.contr_by_party <- summarize(party_group,
+                               sum_party = sum(contb_receipt_amt),
+                               number_of_candidate = length(unique(cand_id)),
+                               mean_party = sum_party/number_of_candidate,
+                               n = n())
 
-> **Tip**: In this section, you should perform some preliminary exploration of
-your dataset. Run some summaries of the data and create univariate plots to
-understand the structure of the individual variables in your dataset. Don't
-forget to add a comment after each plot or closely-related group of plots!
-There should be multiple code chunks and text sections; the first one below is
-just to help you get started.
-
-```{r echo=FALSE, Univariate_Plots}
+FL.contr_by_party[rev(order(FL.contr_by_party$n)),]
 
 ```
 
-> **Tip**: Make sure that you leave a blank line between the start / end of
-each code block and the end / start of your Markdown text so that it is
-formatted nicely in the knitted text. Note as well that text on consecutive
-lines is treated as a single space. Make sure you have a blank line between
-your paragraphs so that they too are formatted for easy readability.
+```{r}
+#plot of party
+ggplot(aes(x = reorder(party, -n), y = n, fill = party), data = FL.contr_by_party) +
+  geom_bar(stat = 'identity') +
+  geom_text(stat = 'identity', aes(label = n),
+            data = FL.contr_by_party, vjust = -0.4) +
+  xlab('Party') +
+  ylab('Total Number of Contributions') +
+  ggtitle('Total Number of Contributions by Party') +
+  scale_fill_manual(values = c('blue', 'gold', 'red'))
+
+sum(FL.contr_by_party$n)
+```
+From this we can see that the total number of 2016 presidential campaign finance contributions is near 405K, while the Democratic party took around 257K and almost 1.75 times of the number of donations make to the Republican party, which is 147K, and other parties took very few numbers of donations compared with Democrat party and Republican party, with about 1.3K. 
+
+
+```{r}
+#Create Candidate dataframe with Descending order
+cand_group <- group_by(FL, cand_nm)
+FL.contr_by_cand <- summarize(cand_group,
+                               sum_cand = sum(contb_receipt_amt),
+                               n = n())
+
+FL.contr_by_cand[rev(order(FL.contr_by_cand$n)),]
+```
+
+```{r}
+ggplot(aes(x = reorder(cand_nm, -n), y = n), data = FL.contr_by_cand) +
+  geom_bar(stat = 'identity') +
+  xlab('candidate') +
+  ylab('Number of Contributions') +
+  ggtitle('Number of Contributions by Candidate') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+There were intotal 25 candidates, and Clinton, Hillary Rodham took the most number of contributions with about 176.8K, and followed by Sanders, Bernard with about 79.6K and Trump, Donald J. with about 74.2K.
+
+```{r}
+#Create gender dataframe by descending order
+gender_group <- group_by(FL, gender)
+FL.contr_by_gender <- summarize(gender_group,
+                               sum_gen = sum(contb_receipt_amt),
+                               mean_gen = mean(contb_receipt_amt),
+                               n = n())
+FL.contr_by_gender[rev(order(FL.contr_by_gender$n)),]
+```
+
+```{r}
+#Plot of gender
+ggplot(aes(x = gender, y = n, fill = gender), 
+       data = FL.contr_by_gender, vjust = -0.4) +
+  geom_bar(stat = 'identity') +
+  geom_text(aes(label = n), stat = 'identity', data = FL.contr_by_gender, vjust = -0.4) +
+  xlab('Gender') +
+  ylab('Number of Contributions') +
+  ggtitle('Number of Contributions by Gender')
+```
+
+We can see here women and men made comparable donations, with about 199K from women and almost 206K from men. But from the mean we can see there is obvious difference. Let's see what are these donors occupation.
+
+```{r}
+#Create occupation dataframe with Descending order
+occupation_group <- group_by(FL, contbr_occupation)
+FL.contr_by_occupation <- summarize(occupation_group,
+                               sum_occupation = sum(contb_receipt_amt),
+                               mean_occupation = mean(contb_receipt_amt),
+                               n = n())
+
+#"INFORMATION REQUESTED" means the donor haven't provide this information, ignored
+FL.contr_by_occupation <- subset(FL.contr_by_occupation, contbr_occupation != "INFORMATION REQUESTED" & contbr_occupation != "INFORMATION REQUESTED PER BEST EFFORTS")
+FL.contr_by_occupation <- head(arrange(FL.contr_by_occupation,desc(n)), n = 10)
+FL.contr_by_occupation[rev(order(FL.contr_by_occupation$n)),]
+```
+
+```{r}
+#plot of occupation
+ggplot(aes(x = reorder(contbr_occupation, -n), y = n), data = FL.contr_by_occupation) +
+  geom_bar(stat = 'identity') +
+  xlab('Top 10 Occupations') +
+  ylab('Number of Donors') +
+  ggtitle('Top 10 Occupations by Number of Donors') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+After looking into occupations, we can find that retired people take the first place, followed by not employed people, attorney comes to the third.
+
+```{r}
+summary(FL$contb_receipt_dt)
+```
+
+```{r}
+#Create city dataframe by descending order
+city_group <- group_by(FL, contbr_city)
+FL.contr_by_city <- summarize(city_group,
+                               sum_city = sum(contb_receipt_amt),
+                               mean_city = mean(contb_receipt_amt),
+                               n = n())
+FL.contr_by_city <- head(arrange(FL.contr_by_city,desc(n)), n = 10)
+FL.contr_by_city[rev(order(FL.contr_by_city$n)),]
+```
+
+```{r}
+#plot of city
+ggplot(aes(x = reorder(contbr_city, -n), y = n), data = FL.contr_by_city) +
+  geom_bar(stat = 'identity') +
+  xlab('Top 10 City') +
+  ylab('Number of Donors') +
+  ggtitle('Top 10 City by Number of Donors') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+The city with most number of contribution is Miami, with about 23.6K.
+
+```{r}
+#plot of date
+ggplot(aes(x = date), data = FL) +
+  geom_histogram(position = position_dodge(), binwidth = 7) +
+  xlab('Date') +
+  ylab('Number of Donors') +
+  ggtitle('Countribution Counts by Date')
+```
+
+It's interesting to see when people made contributions. this distribution shows that the bimodal with peaking around June 2016 and again when closing to the election.
 
 # Univariate Analysis
 
-> **Tip**: Now that you've completed your univariate explorations, it's time to
-reflect on and summarize what you've found. Use the questions below to help you
-gather your observations and add your own if you have other thoughts!
-
 ### What is the structure of your dataset?
+There are 404968 contributions and 18 variables. The variables that I am more interested in are:
+* cand_nm: Candidate Name
+* contbr_nm: Contributor name(first name, for gender prediction)
+* contvr_zip:Contributor Zipcode
+* contbr_occupation: COntributor Occupation
+* contb_receipt_amt: COntribution Amount
+* contb_receipt_dt: Contribution date
+
+Other observations:
+* The median contribution amount is $35.
+* Most people contribute small amount of money, around 50 to 125.
+* The numbers of contribution of women and men are comparable, while in average men's contribution amout is almost 1.5 times of women's.
+* The Democrat received the most number of donations, and it is almost 1.75 times of Republican.
+* Hillary Clinton have the most supporters.
+* The city with most number of contribution is Miami.
+* Retired people make the most number of contributions.
 
 ### What is/are the main feature(s) of interest in your dataset?
+The main features of interest in this dataset are party, candidate, and contribution amount. I would like to find the answers to my questions at the beginning and also try to use combination of variables to predictive a donor's contribution party.
 
 ### What other features in the dataset do you think will help support your \
 investigation into your feature(s) of interest?
+Features like gender, contributor's occupation, contribution date, contributor's zipcode can help support further insights of the dataset. We can explore more by finding the relationships between these features and the main features of interest above.
 
 ### Did you create any new variables from existing variables in the dataset?
+Yes, 5 new variables are created:
+* party: candidates party.
+* contbr_first_nm: contributor's first name to predict contributos' gender.
+* gender: contributor's gender.
+* latitude: contributors' geographic latitude.
+* longitude: contributors' geographic lonitude.
 
 ### Of the features you investigated, were there any unusual distributions? \
 Did you perform any operations on the data to tidy, adjust, or change the form \
 of the data? If so, why did you do this?
-
+In this dataset, the observations with contribution amount value below 0 and 2700 were omitted since negative values are refund and amount value higher than 2700 will be refunded.
 
 # Bivariate Plots Section
+Let's see the barplots for contribution amount by party and candidates.
 
-> **Tip**: Based on what you saw in the univariate plots, what relationships
-between variables might be interesting to look at in this section? Don't limit
-yourself to relationships between a main output feature and one of the
-supporting variables. Try to look at relationships between supporting variables
-as well.
+```{r}
+FL.contr_by_party[rev(order(FL.contr_by_party$sum_party)),]
+```
 
-```{r echo=FALSE, Bivariate_Plots}
+```{r}
+#plot of contribution amount by party
+ggplot(aes(x = reorder(party, -(sum_party/1000)), y = sum_party/1000, fill = party), data = FL.contr_by_party) +
+  geom_bar(stat = 'identity') +
+  geom_text(stat = 'identity', aes(label = round(sum_party/1000)),
+            data = FL.contr_by_party, vjust = -0.4) +
+  xlab('Party') +
+  ylab('Contribution Amounts (Thousands)') +
+  ggtitle('Total Contribution Amounts by Party') +
+  scale_fill_manual(values = c('blue', 'gold', 'red'))
+```
+
+It's interesting to see shere the contribution money went. Previouly in the contribution number plot, we see Democrat took number almost 1.75 time of Republican. But now from the total amount, we can see Republican is leading now, with amount about $32.6K, almost 1.3 times of Democrat.
+
+Since the nuber of candidates is quite different between Democrat and Republican, with 5 Democrat candidates while 17 for Republican candidates, let's see the average amount plot.
+
+```{r}
+#plot of contribution amount by party
+ggplot(aes(x = reorder(party, -(mean_party/1000)), y = mean_party/1000, fill = party), data = FL.contr_by_party) +
+  geom_bar(stat = 'identity') +
+  geom_text(stat = 'identity', aes(label = round(mean_party/1000)),
+            data = FL.contr_by_party, vjust = -0.4) +
+  xlab('Party') +
+  ylab('Contribution Amounts (Thousands)') +
+  ggtitle('Average Contribution Amounts by Party') +
+  scale_fill_manual(values = c('blue', 'gold', 'red'))
+```
+
+After looking at the average amount, we can see that now Democrat is almost 2.6 times of Republican in the average contribution amount.
+
+Now let's see the contribution amount distribution by candidates.
+
+```{r}
+FL.contr_by_cand[rev(order(FL.contr_by_cand$sum_cand)),]
+```
+
+```{r}
+#plot of contribution amount by candidates
+ggplot(aes(x = reorder(cand_nm, -(sum_cand/1000)), y = sum_cand/1000), data = FL.contr_by_cand) +
+  geom_bar(stat = 'identity') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab('Candidate') +
+  ylab('Contribution Amount (Thousands)') +
+  ggtitle('Contribution Amount by Candidate')
+
+sum(FL$contb_receipt_amt)
+```
+
+Same with the nuber of contributions, Hillary Cliton received the most contribution amount with about $21,451.7K, but followed by Donald Trump with $12,386K, Rubio Marco received about $6,634K as the third most contribution amount.
+
+Now let's see the contribution patterns between parties and candidates.
+```{r}
+#boxplot of contribution amount by party
+ggplot(aes(x = reorder(party, -contb_receipt_amt), y = contb_receipt_amt, fill = party), data = FL) +
+  geom_boxplot() +
+  xlab('party') +
+  ylab('Contribution Amount') +
+  ggtitle('Boxplot for Contribution Amount by Party') +
+  scale_fill_manual(values = c('blue', 'gold', 'red'))
+```
+
+It's hard to compare contributions among all parties since there are too many outliers. And since now I am focuting on Demotrat party and Republican party (both contribution numbers and amount of other parties are not comparable with these 2 main party), the "Ohters" will be removed for now.
+
+```{r}
+#remove "Others"
+FL <- subset(FL, FL$cand_nm != "Johnson, Gary" & FL$cand_nm != "McMullin, Evan" & FL$cand_nm != "Stein, Jill")
+
+by(FL$contb_receipt_amt, FL$party, summary)
+```
+
+
+```{r}
+#Add log10: boxplot of contribution amount by party
+ggplot(aes(x = reorder(party, -contb_receipt_amt), y = contb_receipt_amt, fill = party), data = FL) +
+  geom_boxplot() +
+  scale_y_log10() +
+  xlab('party') +
+  ylab('Log10 Contribution Amount') +
+  ggtitle('Boxplot for Contribution Amount by Party') +
+  scale_fill_manual(values = c('blue', 'red'))
+```
+
+From this boxplot we can see that Republican party has higher median and mean, and Democrat party has more variations, that is contributions to Democrat party has more great and small amount of donations.
+
+```{r}
+#boxplot of contribution amount by candidates in descending order
+by(FL$contb_receipt_amt, FL$cand_nm, summary)
+
+ggplot(aes(x = reorder(cand_nm, -contb_receipt_amt), y = contb_receipt_amt), data = FL) + 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab('candidate') +
+  ylab('Contribution Amount') +
+  ggtitle('Contribution Amount by Candidate')
+```
+
+Remember earilier we saw Hillary Cliton received the most contribution amount and followed by Donald Trump and then Rubio Marco received the third most contribution amount. Now from the boxplot, Perry James R. (Rick) has the higherst median althought very few number and amount of contributions. Donald Trump and Hilary Clition seem to have very low median, but they both has a lot of outliers above the median amount value.
+
+Now we can explore more within parties.
+```{r}
+#Create candidate datafram
+candidate_group <- group_by(FL, party, cand_nm)
+FL.contr_by_candidate <- summarize(candidate_group,
+                                   sum_candidate = sum(contb_receipt_amt),
+                                   mean_can = mean(contb_receipt_amt),
+                                   n = n())
+
+FL.contr_by_candidate[rev(order(FL.contr_by_candidate$sum_candidate)),]
+```
+```{r}
+#plot contribution by candidate
+ggplot(aes(x = reorder(cand_nm, -sum_candidate/1000), y = sum_candidate/1000), data = FL.contr_by_candidate) +
+  geom_bar(aes(fill = party), stat = 'identity') +
+  scale_y_continuous(limits = c(0, 23000)) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab('Candidate') +
+  ylab('Contribution Received (Thousands)') +
+  ggtitle('Contribution Received by Candidate') +
+  scale_fill_manual(values = c("blue", "red"))
+```
+
+```{r}
+#Create candidate_party dataframe for percentage calculation
+can_party <- left_join(FL.contr_by_candidate, FL.contr_by_party, by = 'party')
+
+can_party
+```
+```{r}
+ggplot(aes(x = reorder(cand_nm, -(sum_candidate/sum_party*100)), y = sum_candidate/sum_party*100), data = can_party) +
+  geom_bar(aes(fill = party), stat = 'identity') +
+  geom_text(stat='identity', aes(label = paste(round(100*sum_candidate/sum_party,0),'%')), 
+            size=3, data = can_party, vjust = -0.4)+
+  scale_y_continuous(limits = c(0, 100)) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab('Candidate') +
+  ylab('Percentage of Donation') +
+  ggtitle('Percentage of Contribution Received by Candidate from their Own Party') +
+  scale_fill_manual(values = c("blue", 'red'))
+```
+
+It's obvious to see that the donation within Democrat party was mainly received by Clinton Hillary, around 86%. For Republican party, Donald Trump received the most contributions with about 38%, Marco Rubio and Jeb Bush received similar amount of contibutions for about 20% and 19%. So for each party, we can also say that the majority of the donations were received by few candidates.
+
+Now let's see is there any pattern of contribution amount by gender, compared with earlier contribution number by gender, which has no obvious pattern.
+```{r}
+#plot of contribution amount by gender
+ggplot(aes(x = gender, y = contb_receipt_amt, fill = gender), 
+       data = FL, vjust = -0.4) +
+  geom_bar(stat = 'identity') +
+  xlab('Gender') +
+  ylab('Contribution Amount') +
+  ggtitle('Contribution Amout of Contributions by Gender')
+```
+
+```{r}
+#boxplot of contribution amount by gender
+ggplot(aes(x = gender, y = contb_receipt_amt, fill = gender), data = FL) +
+  geom_boxplot() +
+  xlab('gender') +
+  ylab('Contribution Amount') +
+  ggtitle('Contribution Amount by Gender Boxplot') +
+  coord_cartesian(ylim = c(0, 100))
+
+```
+```{r}
+by(FL$contb_receipt_amt, FL$gender, summary)
+```
+
+Now we see from the contribution amount and median and mean by gender, both plots show male contributions are higher than women contributions. On average male donated 1.5 times more than female.
+
+```{r}
+# Top candidates
+top_candidate <- c("Clinton, Hillary Rodham", "Trump, Donald J.", "Rubio, Marco", "Bush, Jeb", "Sanders, Bernard")
+
+top_candidate
+```
+
+```{r}
+# Create gender_to_top_candidate dataframe for bar plot
+FL.gen_to_top_candidate <- FL %>%
+  filter(FL$cand_nm %in% top_candidate) %>%
+  group_by(cand_nm, gender) %>%
+  summarize(sum_gen_can = sum(contb_receipt_amt))
+
+FL.gen_to_top_candidate
+```
+
+```{r}
+# plot of contribution of candidate by gender
+ggplot(aes(x = reorder(cand_nm, -(sum_gen_can/1000)), y = sum_gen_can/1000, fill = gender), 
+       data = FL.gen_to_top_candidate) +
+  geom_bar(stat = 'identity', position = position_dodge(width = 1)) +
+  xlab('Candidate') +
+  ylab('Contribution Amount (Thousands)') +
+  ggtitle('Contribution Amount to Top Candidate by Gender') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Compared with female's support to Donald Trump, Cliton Hillary has higher proportion of female contributions.
+
+Earlier we noticed that the retired people made the most number of contributions, let's see if there is the same pattern when looking into total contribution amount.
+
+```{r}
+FL.contr_by_occupation
+```
+```{r}
+ggplot(aes(x = reorder(contbr_occupation, -(sum_occupation/1000)), y = sum_occupation/1000), data = FL.contr_by_occupation) +
+  geom_bar(stat = 'identity') +
+  geom_text(stat = 'identity', aes(label = round(sum_occupation/1000)), data = FL.contr_by_occupation, vjust = -0.4) +
+  xlab('Top 10 Occupations') +
+  ylab('Total Contribution Amount (Thousands)') +
+  ggtitle('Total Contribution Amount From Top 10 Occupations') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+ggplot(aes(x = reorder(contbr_occupation, -(mean_occupation)), y = round(mean_occupation,2)), data = FL.contr_by_occupation) + 
+  geom_bar(stat = 'identity') +
+  geom_text(stat = 'identity', aes(label = round(mean_occupation,2)), data = FL.contr_by_occupation, vjust = -0.4) +
+  xlab('Top 10 Occupations') +
+  ylab('Average Contribution Amount') +
+  ggtitle('Average Contributions From the Top 10 Occupations') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
-# Bivariate Analysis
+Retired people contributed the most, but when lookint into average contributions, homemaker comes to the first and attorney takes the second place. The unemployed people contribute the least on average among these 10 top occupations.
 
-> **Tip**: As before, summarize what you found in your bivariate explorations
-here. Use the questions below to guide your discussion.
+```{r}
+FL.contr_by_city
+```
+
+
+```{r}
+#plot of contribution by city
+ggplot(aes(x = reorder(contbr_city, -sum_city), y = round(sum_city/1000)), data = FL.contr_by_city) +
+  geom_bar(stat = 'identity') +
+  xlab('Top 10 City') +
+  ylab('Contribution Amounts (K)') +
+  ggtitle('Top 10 City Amounts of Donors') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+#plot of contribution by city
+ggplot(aes(x = reorder(contbr_city, -mean_city), y = round(mean_city)), data = FL.contr_by_city) +
+  geom_bar(stat = 'identity') +
+  xlab('Top 10 City') +
+  ylab('Contribution Amounts') +
+  ggtitle('Average of Top 10 City Amounts of Donors') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Miami is still the top cicy in conbributions but if talking about the average, Boca Raton has the highest contibution amount on average.
+
+# Bivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the \
 investigation. How did the feature(s) of interest vary with other features in \
 the dataset?
+The most 
 
 ### Did you observe any interesting relationships between the other features \
 (not the main feature(s) of interest)?
