@@ -610,10 +610,16 @@ Miami is still the top cicy in conbributions but if talking about the average, B
 ### Talk about some of the relationships you observed in this part of the \
 investigation. How did the feature(s) of interest vary with other features in \
 the dataset?
-The most 
+* Republican party received almost 1.3 times contribution of Democrat party. But since there were 17 Republican candidates and 5 Democrat candidates, on average Democrat is almost 2.6 times of Republican.
+* Hillary Cliton received the most contribution amount, which is 1.73 times of the second position Donald Trump received.
+* For each party, the majority of contributions are received by a few candidates.
+* Although there are comparable number of contributions for female and male, male donated more than female both in total and on average.
+* Retired people contribute the most in total amount, while on average homemaker contribute most, followed by attorney.
+* Miami contributes the most in total amount in Florida, but on average Boca Raton contributes the most. 
 
 ### Did you observe any interesting relationships between the other features \
 (not the main feature(s) of interest)?
+Hillary Cliton and Donald Trump are the top 2 candidates with high amout of contributions, but both median are very low
 
 ### What was the strongest relationship you found?
 
@@ -627,8 +633,28 @@ create here are justified by the plots you explored in the previous section. If
 you plan on creating any mathematical models, this is the section where you
 will do that.
 
-```{r echo=FALSE, Multivariate_Plots}
+```{r }
+# Create a new dataframe for map
+lat <- FL$latitude
+lon <- FL$longitude
+party <- FL$party
+FL_map <- data.frame(party, lat, lon)
+colnames(FL_map) <- c('party', 'lat', 'lon')
 
+# make_bbox function to get a zoom level
+sbbox <- make_bbox(lon = FL$lon, lat = FL$lat, f = 0.01)
+
+my_map <- get_map(location = sbbox, maptype = "roadmap", scale = 2, color="bw", zoom = 7)
+
+ggmap(my_map) +
+  geom_point(data=FL_map, aes(x = lon, y = lat, color = party), 
+             size = 2, alpha = 0.2) +
+  xlab('Longitude') +
+  ylab('Latitude') +
+  ggtitle('Location of Donors') +
+  scale_y_continuous(limits = c(41, 43)) +
+  scale_x_continuous(limits = c(-74, -70)) +
+  scale_color_manual(breaks=c("democrat", "republican"), values=c("blue","red"))
 ```
 
 # Multivariate Analysis
