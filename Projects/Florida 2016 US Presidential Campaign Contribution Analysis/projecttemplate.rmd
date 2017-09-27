@@ -619,19 +619,58 @@ the dataset?
 
 ### Did you observe any interesting relationships between the other features \
 (not the main feature(s) of interest)?
-Hillary Cliton and Donald Trump are the top 2 candidates with high amout of contributions, but both median are very low
+One interesting finding is that on average of the amount, homemaker contributed the most. Although in total their contributions are not the most, and this is because the number of contributions is not much.
 
 ### What was the strongest relationship you found?
-
+Since now only contribution amount is numeric variable, we cannot find the correlations.
 
 # Multivariate Plots Section
+Now let's explore the top candidates' contribution trend over time. 
 
-> **Tip**: Now it's time to put everything together. Based on what you found in
-the bivariate plots section, create a few multivariate plots to investigate
-more complex interactions between variables. Make sure that the plots that you
-create here are justified by the plots you explored in the previous section. If
-you plan on creating any mathematical models, this is the section where you
-will do that.
+```{r}
+#Cumulative dataframe
+candidate_cum <- FL %>% 
+  filter(cand_nm %in% top_candidate) %>% 
+  group_by(cand_nm, date) %>% 
+  summarize(n = n(), 
+            total = sum(contb_receipt_amt)) %>% 
+  mutate(cumn = cumsum(n), 
+         cum_total = cumsum(total))
+```
+
+```{r}
+#Cumulative plot (Amount)
+ggplot(aes(x = date, y = cum_total/1000, color = cand_nm),
+       data = candidate_cum) +
+  geom_point(alpha = 1/40) +
+  geom_smooth(method = "loess") +
+  theme_tufte() +
+  xlab("Date") +
+  ylab("Cumulative Amount (Thousands)") +
+  ggtitle("Cumulative Amount of Top Candidates") +
+  theme(plot.title = element_text(size = 16),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.position = "bottom") +
+  scale_color_brewer(type = "qual", palette = "Set1")
+```
+
+```{r}
+#Cumulative plot (number)
+ggplot(aes(x = date, y = cumn/1000, color = cand_nm),
+       data = candidate_cum) +
+  geom_point(alpha = 1/40) +
+  geom_smooth(method = "loess") +
+  theme_tufte() +
+  xlab("Date") +
+  ylab("Cumulative Count") +
+  ggtitle("Cumulative Count of Top Candidates") +
+  theme(plot.title = element_text(size = 16),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.position = "bottom") +
+  scale_color_brewer(type = "qual", palette = "Set1")
+```
+
+We can notice that Cliton Hillary and Donald Trump both have steep trend in cumulative donation amount and count, but the thrend of Donald Trump are both under Cliton Hillary's trends, that means Cliton Hillary received higher contributions earlier than Donald Trump. Bernard Sanders's donation count trend is even more steep than Cliton Hillary but the donation amount trend is not, this tell us most supporters for Bernard Sanders are smaller donors.
 
 ```{r }
 # Create a new dataframe for map
