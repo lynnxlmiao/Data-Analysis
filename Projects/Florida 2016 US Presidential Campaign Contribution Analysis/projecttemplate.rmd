@@ -672,28 +672,46 @@ ggplot(aes(x = date, y = cumn/1000, color = cand_nm),
 
 We can notice that Cliton Hillary and Donald Trump both have steep trend in cumulative donation amount and count, but the thrend of Donald Trump are both under Cliton Hillary's trends, that means Cliton Hillary received higher contributions earlier than Donald Trump. Bernard Sanders's donation count trend is even more steep than Cliton Hillary but the donation amount trend is not, this tell us most supporters for Bernard Sanders are smaller donors.
 
+Let's see where does the donation come from.
+```{r}
+#Dataframe for main cities longitude and latitude
+map_FL = map_data('county', 'florida')
+main_area <- data.frame(
+  city = c("Miami",
+           "Naples",
+           "Tampa",
+           "Boca Raton",
+           "Fort Lauderdale",
+           "Jacksonville",
+           "Orlando",
+           "Pensacola",
+           "Tallahassee"),
+  longitude = c(-80.2, -81.8, -82.5, -80.1, -80.1, -81.7, -81.4, -87.2, -84.3),
+  latitude  = c(25.8, 26.1, 28.0, 26.4, 26.1, 30.3, 28.5, 30.4, 30.4)
+)
+
+ggplot() +
+  geom_polygon(data = map_FL, aes(x = long, y = lat, group = group),
+               colour = "black", fill = "#31a354") +
+  geom_point(data = FL,
+             aes(x = longitude, y = latitude, alpha = 1/50),
+             color = "#e34a33") +
+  geom_text(data = main_area,
+            aes(longitude, latitude, label = city),
+            size = 4, fontface = "bold", colour = "black") +
+  theme_tufte() +
+  xlab("Latitude") +
+  ylab("lonitude") +
+  ggtitle("The Geographical Location of Donors in Florida") +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 16),
+        axis.title = element_text(size = 12, face = "bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = .4))
+```
+
+This is only the donors' geographical distribution. 
 ```{r }
-# Create a new dataframe for map
-lat <- FL$latitude
-lon <- FL$longitude
-party <- FL$party
-FL_map <- data.frame(party, lat, lon)
-colnames(FL_map) <- c('party', 'lat', 'lon')
 
-# make_bbox function to get a zoom level
-sbbox <- make_bbox(lon = FL$lon, lat = FL$lat, f = 0.01)
-
-my_map <- get_map(location = sbbox, maptype = "roadmap", scale = 2, color="bw", zoom = 7)
-
-ggmap(my_map) +
-  geom_point(data=FL_map, aes(x = lon, y = lat, color = party), 
-             size = 2, alpha = 0.2) +
-  xlab('Longitude') +
-  ylab('Latitude') +
-  ggtitle('Location of Donors') +
-  scale_y_continuous(limits = c(41, 43)) +
-  scale_x_continuous(limits = c(-74, -70)) +
-  scale_color_manual(breaks=c("democrat", "republican"), values=c("blue","red"))
 ```
 
 # Multivariate Analysis
