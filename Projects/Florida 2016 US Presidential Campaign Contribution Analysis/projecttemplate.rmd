@@ -709,49 +709,98 @@ ggplot() +
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = .4))
 ```
 
-This is only the donors' geographical distribution. 
-```{r }
+This is only the donors' geographical distribution. We can also see the donations amount by geographical locations and also donations per capita by geographical locations.
 
+```{r }
+#Dataframe of geographical location and total amount
+df_zip_total <- FL %>%
+  group_by(contbr_zip) %>%
+  summarize(value = sum(contb_receipt_amt)) %>%
+  arrange(desc(value))
+
+df_zip_total$region <- df_zip_total$contbr_zip
+df_zip_total <- na.omit(df_zip_total)
+
+#Dataframe of geographical location and average amount
+df_zip_avg <- FL %>%
+  group_by(contbr_zip) %>%
+  summarize(value = sum(contb_receipt_amt)/n())
+
+df_zip_avg$region <- df_zip_avg$contbr_zip
+df_zip_avg <- na.omit(df_zip_avg)
 ```
+
+```{r}
+#plot of total amount
+df_zip_total_map <- ZipChoropleth$new(df_zip_total)
+df_zip_total_map$ggplot_scale = scale_fill_brewer(palette = 1, drop = FALSE)
+df_zip_total_map$set_zoom_zip(state_zoom = "florida",
+                              county_zoom = NULL,
+                              msa_zoom = NULL,
+                              zip_zoom = NULL)
+df_zip_total_map$title = "Florida Total Donation (thousands) by County"
+df_zip_total_map$render()
+```
+
+```{r}
+df_zip_avg_map <- ZipChoropleth$new(df_zip_avg)
+df_zip_avg_map$ggplot_scale = scale_fill_brewer(palette = 1, drop = FALSE)
+df_zip_avg_map$set_zoom_zip(state_zoom = "florida",
+                            county_zoom = NULL,
+                            msa_zoom = NULL,
+                            zip_zoom = NULL)
+df_zip_avg_map$title = "Florida Average Donation (thousands) by County"
+df_zip_avg_map$render()
+```
+The total donation amount still can see similar trend as the donors number, but if looking at the donations per capita by county, some show higher donations per capita, for example Collier.
 
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the \
-investigation. Were there features that strengthened each other in terms of \
-looking at your feature(s) of interest?
+investigation. 
++ While closer to the election day, more big pocket donors supported both Hillary Clinton and Donald Trump.
++ Clinton Hillary received more donations count and amount than Donald Trump, and also got support earlier than Donald Trump.
 
 ### Were there any interesting or surprising interactions between features?
-
-### OPTIONAL: Did you create any models with your dataset? Discuss the \
-strengths and limitations of your model.
+For a certain period of time, Bernard Sanders gained more popularity than Hillary Clinton. But the amount of donations is not. That means supporters of Bernard Sanders are more small pocket donors.
 
 ------
 
 # Final Plots and Summary
 
-> **Tip**: You've done a lot of exploration and have built up an understanding
-of the structure of and relationships between the variables in your dataset.
-Here, you will select three plots from all of your previous exploration to
-present here as a summary of some of your most interesting findings. Make sure
-that you have refined your selected plots for good titling, axis labels (with
-units), and good aesthetic choices (e.g. color, transparency). After each plot,
-make sure you justify why you chose each plot by describing what it shows.
-
-### Plot One
+### Plot One (Most Donations went toward a few candidates)
 ```{r echo=FALSE, Plot_One}
+can_party$cand_nm <- ordered(can_party$cand_nm, levels = c("Clinton, Hillary Rodham", "Trump, Donald J." , "Rubio, Marco", "Bush, Jeb", "Sanders, Bernard", "Cruz, Rafael Edward 'Ted'", "Carson, Benjamin S.", "Kasich, John R.", "Fiorina, Carly", "Paul, Rand", "Christie, Christopher J.", "Walker, Scott", "Johnson, Gary", "Graham, Lindsey O.", "Huckabee, Mike", "O'Malley, Martin Joseph", "Stein, Jill", "Perry, James R. (Rick)", "Santorum, Richard J.", "Jindal, Bobby", "Pataki, George E.", "McMullin, Evan", "Lessig, Lawrence", "Webb, James Henry Jr."))
 
+ggplot(aes(x = cand_nm, y = sum_candidate/sum_party*100), data = can_party) +
+  geom_bar(aes(fill = party), stat = 'identity') +
+  geom_text(stat='identity', aes(label = paste(round(100*sum_candidate/sum_party,0),'%')), 
+            size=3, data = can_party, vjust = -0.4)+
+  scale_y_continuous(limits = c(0,100)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab('Candidate') +
+  ylab('Percentage of Donation') +
+  ggtitle('Percentage of Contribution Received by Candidate from Their Party') +
+  scale_fill_manual(values = c("blue", "red"))
 ```
 
 ### Description One
+This plot demonstrates the contributions distribution for each candidate within each party. Actually it is uneven, most of the contributinos were received by a few candidates in each party, especially in Democrat, 99% of the donations for Democrat went to two candidates and Hillary Cliton took up to 86%. Republican got a few more candidates to take the majority of the contribution, and Donald Trump took the most among this party with 38%, Marco Rubio and Jeb Bush took comparable portion with 20% and 19% respectively.
 
-
-### Plot Two
+### Plot Two (Contribution by Occupation)
 ```{r echo=FALSE, Plot_Two}
-
+ggplot(aes(x = reorder(contbr_occupation, -sum_occupation), y = sum_occupation/1000), data = FL.contr_by_occupation) +
+  geom_bar(stat = 'identity') +
+  geom_text(stat = 'identity', aes(label = round(sum_occupation/1000)), data = FL.contr_by_occupation, vjust = -0.4) +
+  xlab('Top 10 Occupations') +
+  ylab('Total Contribution Amount (Thousands)') +
+  ggtitle('Total Contribution Amount From Top 10 Occupations') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ### Description Two
-
+The total contribution across occupations differ substantially. And the most contribution amount is from retired people, which is surprised to me because if I was asked which occupation contributed the most to presidential candidates in Florida in 2016 before exploring the data, I would have guessed 'lawyers' or 'CEOs', but actually it's not.
+And Teachers, Engineers and professors are the last three among these top 10 occupations, we may need more knowledge of industry political background to explain these findings.
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
