@@ -7,11 +7,10 @@ This is an exploration of 2016 US presidential campaigns financial contributions
 
 The reason why I chose Florida's data is that Florida has been the most pupulated of the "swing states", means where both political parties have a similar level of support. For this exploratory data analysis, the data of 2016 presidential campaigns financial contributions is from [Federal Election Commission](http://classic.fec.gov/disclosurep/pnational.do).
 
-In this analysis, I will try to answer four questions: 
+In this analysis, I will try to answer three questions: 
 Firstly, which party and candidates received the most financial support in Florida (from the donations received)?
 Secondly, is there a difference in donations between genders, and what is the patterns here?
-Next, who made these contributions? which occupation make the most?
-Lastly, where do these donations come from geographically?
+Lastly, who made these contributions? which occupation make the most?
 
 #Dataset
 Download dataset and load data.
@@ -24,8 +23,6 @@ colnames(FL) <- c('cmte_id', 'cand_id', 'cand_nm', 'contbr_nm',	'contbr_city',
                   'contbr_occupation',	'contb_receipt_amt', 'contb_receipt_dt',
                   'receipt_desc', 'memo_cd', 'memo_text', 'form_tp', 'file_num', 
                   'tran_id', 'election_tp')
-
-str(FL)
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
@@ -709,7 +706,7 @@ ggplot() +
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = .4))
 ```
 
-This is only the donors' geographical distribution. We can also see the donations amount by geographical locations and also donations per capita by geographical locations.
+This is only the donors' geographical distribution. We can see the major cities have more contributors.
 
 ```{r }
 #Dataframe of geographical location and total amount
@@ -804,19 +801,51 @@ And Teachers, Engineers and professors are the last three among these top 10 occ
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
+ggplot(aes(x = date, y = cum_total/1000, color = cand_nm),
+       data = candidate_cum) +
+  geom_point(alpha = 1/40) +
+  geom_smooth(method = "loess") +
+  theme_tufte() +
+  xlab("Date") +
+  ylab("Cumulative Amount (Thousands)") +
+  ggtitle("Cumulative Amount (log10) of Top Candidates") +
+  theme(plot.title = element_text(size = 16),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.position = "bottom") +
+  scale_color_brewer(type = "qual", palette = "Set1")
 
 ```
 
 ### Description Three
-
+Hillary Clinton dominated the contribution amount especially when close to the election day. And the closer to the election, also the more money came to Donald Trump. But since the date when Donald Trump started to receive higher contributions was later than Hillary Clinton, so even later when close to the election day they got almost the same slope of the cumulative amount trend, but Hillary Cliton still received higher total amount when comparing at the same time.
 ------
 
 # Reflection
 
-> **Tip**: Here's the final step! Reflect on the exploration you performed and
-the insights you found. What were some of the struggles that you went through?
-What went well? What was surprising? Make sure you include an insight into
-future work that could be done with the dataset.
+## Challenges and Struggles
+Throughout the analysis, I had to deal with several issues:
++ The original dataset did not contain gender information. In order to analyze the relationshihp between gender and donations, I have added gender column with "gender" package which is the prediction base on donors' first name.
++ I have also added latitude and longitude columns with "zipcode" package to see clearer of donor's geographic location.
++ Some observations need to be removed which with contribution amount either exceed $2700 or the negative amount values. This is because the contribution limits is 2700 and negative values are refunds. 
++ It's not that easy for me to deal with every dataframe and plot since I am still practicing myself to be more familar with them.
 
-> **Tip**: Don't forget to remove this, and the other **Tip** sections before
-saving your final work and knitting the final report!
+## Success
+I have learned a lot from this project. The ggplot2 and dplyr packages are so important in this analysis, and there are also some other powerful packages I haven't used before, such as gender and zipcode. It's really a very good practice.
+
+## Conclusion
+After analyzing Florida 2016 presidential election financial donation data, I have some interesting findings:
++ Few candidates received the most donations.
++ Republican received higher amount of contributions than Democrat while they got comparable number of contributors.
++ Male contributed more than female while the number of male contributors and female contributors are comparable.
++ The retired people are the largest contribution group.
++ The closer to the election day, the more mondy came to both Hillary Cliton and Donald Trump. But intotal Hillary Cliton received the most contributions.
+
+## Future Work
+This is only the analysis from Florida, it would be interesting to also analyze campaign finance data for other "swing" states, for example Ohio, to see if there same findings and what's different. And some "blue" or "red" states' data are also worth to analyze since they should have different patterns.
+
+# Reference
+https://stackoverflow.com/questions/4066607/reading-a-csv-file-with-repeated-row-names-in-r
+https://www.rdocumentation.org/packages/choroplethrZip/versions/1.5.0
+https://stat.ethz.ch/pipermail/r-help/2006-February/088987.html
+https://stackoverflow.com/questions/16961921/plot-data-in-descending-order-as-appears-in-data-frame
+https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/ggmap/ggmapCheatsheet.pdf
