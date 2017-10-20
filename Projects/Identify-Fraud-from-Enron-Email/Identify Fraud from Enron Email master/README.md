@@ -1,4 +1,5 @@
 
+<img src="C:\Users\MXL92\Desktop\enron-logo.jpg">
 # Identify Fraud from Enron Email #
 ## Project Overview ##
 In 2000, Enron was one of the largest companies in the United States. By 2002, it had collapsed into bankruptcy due to sidespread corporate fraud. In the resulting Federal investigation, a significant amount of typically confidential information entered into the public record, including tens of thousands of emails and detailed financial data for top executives. In this project, I will build a person of interest identifier based on financial and email data made public as a result of the Enron scandal.
@@ -44,7 +45,7 @@ In this project, scikit-learn and machine learning techniques is used to predict
 
 ** 2. What features did you end up using in your POI identifier, and what selection process did you use to pick them? Did you have to do any scaling? Why or why not? As part of the assignment, you should attempt to engineer your own feature that does not come ready-made in the dataset -- explain what feature you tried to make, and the rationale behind it. (You do not necessarily have to use it in the final analysis, only engineer and test it.) In your feature selection step, if you used an algorithm like a decision tree, please also give the feature importances of the features that you use, and if you used an automated feature selection function like SelectKBest, please report the feature scores and reasons for your choice of parameter values.  [relevant rubric items: “create new features”, “intelligently select features”, “properly scale features”] **
 
-In this project I use ```VarianceThreshold``` to remove all features with variances below 80%. Then I use ```SelectKBest``` to obtain the score of each feature. After sorting I select the 7 highest scored features as my best features to use in the POI identifier. Below are these 7 features and their score:
+In this project I use ```VarianceThreshold``` to remove all features with variances below 80%, after comparing the result without removing low variance features and several threshold values. Initial feature selection was performed using SelectKBest univariate statistical tests and identifying features with the highest k scores. After sorting and several trails, base on the testing results I select the 7 highest scored features as my best features to use in the POI identifier. Below are these 7 features and their score:
 ```
 [('exercised_stock_options', 24.815079733218194), 
  ('total_stock_value', 24.182898678566879), 
@@ -55,7 +56,7 @@ In this project I use ```VarianceThreshold``` to remove all features with varian
  ('restricted_stock', 9.2128106219771002)]
  ```
  
- I have tried to engineer 2 features 'msg_to_poi_ratio' and 'msg_from_poi_ratio', and 'msg_to_poi_ratio' refers to the ratio that the person sends emails to POI, 'msg_from_poi_ratio' refers to the ratio that the person receives emails from POI. Because I think that POIs are more likely to mail each other so that these two features could be used to predict POI. But from the feature select process things didn't show as I thought. I tried with the new features also to see how naive bayse model performs (naive bayse is the best model in this case after addressing next question) and we can see from next tabel the performance with new festures is not as good as the performance that without these two features.
+ I have tried to engineer 2 features 'msg_to_poi_ratio' and 'msg_from_poi_ratio', and 'msg_to_poi_ratio' refers to the ratio that the person sends emails to POI, 'msg_from_poi_ratio' refers to the ratio that the person receives emails from POI. Because I think that POIs are more likely to mail each other so that these two features could be used to predict POI. But from the feature select process things didn't show as I thought. I tried with the new features also to see how naive bayse model performs (naive bayse is the best model in this case) and we can see from next tabel the performance with new festures is not as good as the performance that without these two features.
  
  |Metrics|Without New Features|With New Features|
  |:------|:-------------------|:----------------|
@@ -89,7 +90,18 @@ In this case, I use ```GridSearchCV```, which can do an exhaustive search over s
 
 ** 5. What is validation, and what’s a classic mistake you can make if you do it wrong? How did you validate your analysis?  [relevant rubric items: “discuss validation”, “validation strategy”] **
 
-Validation is the process to make sure our model generalizes with the remaining part of the dataset. A classic mistake I often make is over fitting a model, with the model perfomed well on training set but have substantial lower result on the test set. In order to address this problem, I have built the function called ```evaluate_clf```, where I applied cross validation technique to split the data into training data and test data 100 times and divided the dataset into 3:1 training-to-test ratio, calculating the accuracy, precision, and recall of each iteration then took the mean of each metric. 
+Validation is the process to make sure our model generalizes with the remaining part of the dataset.A classic mistake I often make is over fitting a model, with the model perfomed well on training set but have substantial lower result on the test set. 
+
+In order to address this problem, I have applied cross validation technique to split the data into training data and test data with 3:1 training-to-test ratio for 100 times, then I used sklearn.metrics accuracy, precision and recall scores to obtain the accuracy, precision and recall of each iteration and took the mean of each metric to validate my algorithms.
+
+The table shows the results of the chosen algorithms:
+
+|Feature|Accuracy|Precision|Recall|
+|:------|:-------|:--------|:-----|
+|Naive Bayes|0.855|0.433|0.373|
+|SVM |0.866|0.142|0.038|
+|K-Means|0.369|0.760|0.374|
+|Logistic Regression|0.860|0.400|0.190|
 
 ** 6. Give at least 2 evaluation metrics and your average performance for each of them.  Explain an interpretation of your metrics that says something human-understandable about your algorithm’s performance. [relevant rubric item: “usage of evaluation metrics”] **
 
