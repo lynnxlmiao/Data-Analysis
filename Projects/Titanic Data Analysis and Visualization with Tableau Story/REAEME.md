@@ -6,4 +6,5 @@ Technologies involved: Python, Tableau, Exploratory Data Analysis, Data Wranglin
 
 ## Report Link ##
 [Data Analysis Report](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis/titanic_data_analysis.ipynb)
+
 [Tableau Story](https://public.tableau.com/profile/xilin.miao#!/vizhome/Titanic_Tableau_2/Story?publish=yes)
