@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 Florida 2016 US Presidential Campaign Contribution Analysis
 ========================================================
 by Xilin Miao
@@ -779,6 +784,7 @@ ggplot(aes(x = date, y = cum_total/1000, color = cand_nm),
 ```
 
 ### Description Three
+
 Hillary Clinton dominated the contribution amount especially when close to the election day. And the closer to the election, also the more money came to Donald Trump. But since the date when Donald Trump started to receive higher contributions was later than Hillary Clinton, so even later when close to the election day they got almost the same slope of the cumulative amount trend, but Hillary Cliton still received higher total amount when comparing at the same time.
 
 # Reflection
