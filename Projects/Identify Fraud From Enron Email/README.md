@@ -1,5 +1,6 @@
 ## IDENTIFY FRAUD FROM ENRON EMAIL ##
 This project identified which Enron employees are more likely to have committed fraud using machine learning and public Enron financial and email data.
+
 Technologies involved: Python, scikit-learn, Machine Learning, Feature Selection, Model Evaluation and Validation, etc.
 
 ## Report Link ##
