@@ -1,5 +1,6 @@
 ## WRANGLE OPENSTREETMAP DATA ##
 This project is to clean the data of Portland, Oregon, U.S from OpenStreetMap (in XML format) with data munging techniques, addressing problems such as abbreviated and inconsistent information and then explore data with SQL.
+
 Technologies involved: Python, SQL, Exploratory Data Analysis, Data Verification,
 Data Cleaning, etc.
 

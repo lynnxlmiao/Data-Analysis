@@ -2,6 +2,7 @@
 
 This project is to use data wrangling techniques to process data from Kaggle Titanic Competition, and used NumPy, Pandas, Matplotlib to explore the factors that made people more likely to survive.
 Then a Tableau Story is created which contains demographics and passengers information and revealed the higher survival chance factors.
+
 Technologies involved: Python, Tableau, Exploratory Data Analysis, Data Wrangling, NumPy, Pandas, Matplotlib, etc.
 
 ## Report Link ##

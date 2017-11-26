@@ -1,5 +1,6 @@
 ## FLORIDA 2016 US PRESIDENTIAL CAMPAIGN CONTRIBUTION ANALYSIS ##
 This is an exploration of 2016 US presidential campaigns financial contributions of Florida using R and exploratory data analysis techniques, exploring variables like candidates, party, donors occupations, gender of donos and geographical location of donors.
+
 Technologies involved: R, Exploratory Data Analysis, R Packages, Plotting in R, etc.
 
 ## Report Link ##
