@@ -10,6 +10,17 @@ Firstly, which party and candidates received the most financial support in Flori
 Secondly, is there a difference in donations between genders, and what is the patterns here? 
 Lastly, who made these contributions? which occupation make the most?
 
++ Total contribution amounts by party
+![image](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Florida%202016%20US%20Presidential%20Campaign%20Contribution%20Analysis/Shortcuts/Contribution%20Amounts%20by%20Party.png)
+
++ Contribution received by candidates
+![image](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Florida%202016%20US%20Presidential%20Campaign%20Contribution%20Analysis/Shortcuts/Contribution%20by%20Candidate.png)
+
++ Cumulative amount of top candidates
+![image](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Florida%202016%20US%20Presidential%20Campaign%20Contribution%20Analysis/Shortcuts/Cumulative%20Amount%20by%20Top%20Candidates.png)
+
++ The geographical location of donors in Florida
+![image](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Florida%202016%20US%20Presidential%20Campaign%20Contribution%20Analysis/Shortcuts/Cumulative%20Amount%20by%20Top%20Candidates.png)
 
 ## Report Link ##
 [Florida 2016 US Presidential Campaign Contribution Analysis](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Florida%202016%20US%20Presidential%20Campaign%20Contribution%20Analysis/Florida_2016_US_Presidential_Campaign_Contribution_Analysis.pdf)
