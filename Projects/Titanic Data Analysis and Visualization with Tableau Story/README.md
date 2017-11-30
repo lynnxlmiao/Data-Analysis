@@ -12,9 +12,23 @@ This project is to use data wrangling techniques to process titanic data from Ka
 
 And a Tableau Story is created which contains demographics and passengers information and revealed the higher survival chance factors.
 
-![A Glance of Passangers On Board](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis%20and%20Visualization%20with%20Tableau%20Story/Create%20a%20Tableau%20Story%20-%20Titanic%20Data%20Visualization/Tableau%20Report%20Shortcuts/A%20Glance.png)
++ A glance of passengers on board
+![image](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis%20and%20Visualization%20with%20Tableau%20Story/Create%20a%20Tableau%20Story%20-%20Titanic%20Data%20Visualization/Tableau%20Report%20Shortcuts/A%20Glance.png)
+
++ Female passengers had higher chance of survival 
+![image](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis%20and%20Visualization%20with%20Tableau%20Story/Create%20a%20Tableau%20Story%20-%20Titanic%20Data%20Visualization/Tableau%20Report%20Shortcuts/View%20from%20Gender.png)
+
++ Passengers of first class had higher chance of survival
+![image](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis%20and%20Visualization%20with%20Tableau%20Story/Create%20a%20Tableau%20Story%20-%20Titanic%20Data%20Visualization/Tableau%20Report%20Shortcuts/View%20from%20Passanger%20Class.png)
+
++ Passengers below 10 years old had higher chance of survival, while it looks like age didn't play any role for adults of survival
+![image](https://public.tableau.com/profile/xilin.miao#!/vizhome/Titanic_Tableau_2/Story?publish=yes)
+
++ To conclude, female passengers of first class had the highest possibility of surviving
+![image](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis%20and%20Visualization%20with%20Tableau%20Story/Create%20a%20Tableau%20Story%20-%20Titanic%20Data%20Visualization/Tableau%20Report%20Shortcuts/Conclude.png)
 
 ## Report Link ##
 [Data Analysis Report](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis/titanic_data_analysis.ipynb)
 
-[Tableau Story](https://public.tableau.com/profile/xilin.miao#!/vizhome/Titanic_Tableau_2/Story?publish=yes)
+[Tableau Story](https://public.tableau.com/profile/lynn.miao#!/vizhome/Titanic_Story/Story?publish=yes)
+
