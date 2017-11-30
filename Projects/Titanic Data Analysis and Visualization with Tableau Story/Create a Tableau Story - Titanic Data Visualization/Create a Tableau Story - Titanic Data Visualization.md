@@ -49,4 +49,4 @@ Following his feedback "The first dashboard is a bit confusing for me..." I have
 
 And also "...providing some necessary descriptions of each dashboard...", I added the decriptions for each dashboard so that to make a story instead of making charts only. 
 
-** Final version: **https://public.tableau.com/profile/xilin.miao#!/vizhome/Titanic_Tableau_2/Story?publish=yes
+** Final version: **https://public.tableau.com/profile/lynn.miao#!/vizhome/Titanic_Story/Story?publish=yes
