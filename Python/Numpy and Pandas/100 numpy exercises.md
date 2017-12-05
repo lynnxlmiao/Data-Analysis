@@ -144,3 +144,13 @@ np.nan - np.nan
 0.3 == 3 * 0.1
 ```
 False
+#### 16. Create a 5x5 matrix with values 1,2,3,4 just below the diagonal (★☆☆) ####
+```python
+Z = np.diag(1+np.arange(4),k=-1)
+print(Z)
+```
+[[0 0 0 0 0]
+ [1 0 0 0 0]
+ [0 2 0 0 0]
+ [0 0 3 0 0]
+ [0 0 0 4 0]]
