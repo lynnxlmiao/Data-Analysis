@@ -135,7 +135,7 @@ print(Z)
  [ 1.  0.  0.  0.  0.  0.  0.  0.  0.  1.]
  [ 1.  0.  0.  0.  0.  0.  0.  0.  0.  1.]
  [ 1.  1.  1.  1.  1.  1.  1.  1.  1.  1.]]
-#### 15. What is the result of the following expression? (★☆☆) ####
+#### 15. *What is the result of the following expression? (★☆☆) ####
 ```python
 0 * np.nan
 np.nan == np.nan
@@ -154,3 +154,10 @@ print(Z)
  [0 2 0 0 0]
  [0 0 3 0 0]
  [0 0 0 4 0]]
+#### 17. Create a 8x8 matrix and fill it with a checkerboard pattern (★☆☆) ####
+```python
+Z = np.zeros((8,8),dtype=int)
+Z[1::2,::2] = 1
+Z[::2,1::2] = 1
+print(Z)
+```
