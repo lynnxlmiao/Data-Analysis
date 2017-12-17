@@ -199,3 +199,10 @@ print(Z)
  [ 0.3804377   0.30456337  0.52922025  0.77065076  0.67617333]
  [ 0.1947681   0.28272861  0.38190832  1.          0.63489674]
  [ 0.10578147  0.37447813  0.85450221  0.59814225  0.        ]]
+#### 21. Create a custom dtype that describes a color as four unisgned bytes (RGBA) (★☆☆) ####
+```python
+color = np.dtype([("r", np.ubyte, 1),
+                  ("g", np.ubyte, 1),
+                  ("b", np.ubyte, 1),
+                  ("a", np.ubyte, 1)])
+```
