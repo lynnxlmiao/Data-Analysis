@@ -206,3 +206,14 @@ color = np.dtype([("r", np.ubyte, 1),
                   ("b", np.ubyte, 1),
                   ("a", np.ubyte, 1)])
 ```
+#### 22. Multiply a 5x3 matrix by a 3x2 matrix (real matrix product) (★☆☆) ####
+```python
+Z = np.dot(np.ones((5,3)), np.ones((3,2)))
+print(Z)
+```
+[[ 3.  3.]
+ [ 3.  3.]
+ [ 3.  3.]
+ [ 3.  3.]
+ [ 3.  3.]]
+#### 23. Given a 1D array, negate all elements which are between 3 and 8, in place. (★☆☆) ####
