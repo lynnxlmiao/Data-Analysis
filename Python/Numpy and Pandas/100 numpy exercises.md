@@ -217,3 +217,11 @@ print(Z)
  [ 3.  3.]
  [ 3.  3.]]
 #### 23. Given a 1D array, negate all elements which are between 3 and 8, in place. (★☆☆) ####
+```python
+Z = np.arange(11)
+print(Z)
+Z[(3 < Z) & (Z <= 8)] *= -1
+print(Z)
+```
+[ 0  1  2  3  4  5  6  7  8  9 10]
+[ 0  1  2  3 -4 -5 -6 -7 -8  9 10]
