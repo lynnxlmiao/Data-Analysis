@@ -225,3 +225,11 @@ print(Z)
 ```
 [ 0  1  2  3  4  5  6  7  8  9 10]
 [ 0  1  2  3 -4 -5 -6 -7 -8  9 10]
+#### 24. What is the output of the following script? (★☆☆) ####
+```python
+print(sum(range(5),-1))
+from numpy import *
+print(sum(range(5),-1))
+```
+9
+10
