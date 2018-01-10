@@ -28,7 +28,7 @@ And a Tableau Story is created which contains demographics and passengers inform
 ![image](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis%20and%20Visualization%20with%20Tableau%20Story/Create%20a%20Tableau%20Story%20-%20Titanic%20Data%20Visualization/Tableau%20Report%20Shortcuts/Conclude.png)
 
 ## Report Link ##
-[Data Analysis Report](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis/titanic_data_analysis.ipynb)
+[Data Analysis Report](https://github.com/lynnxlmiao/Data-Analysis/blob/master/Projects/Titanic%20Data%20Analysis%20and%20Visualization%20with%20Tableau%20Story/Titanic%20Data%20Analysis/titanic_data_analysis.ipynb)
 
 [Tableau Story](https://public.tableau.com/profile/lynn.miao#!/vizhome/Titanic_Story/Story?publish=yes)
 
